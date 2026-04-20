@@ -216,17 +216,21 @@ $all_doctors = mysqli_query($conn,
 </head>
 <body>
 
-<!-- NAVBAR -->
+<!-- TOP NAVBAR -->
 <nav class="simple-nav">
     <div class="logo">
         <i class="bi bi-heart-pulse"></i> Doc<span>Book</span>
     </div>
     <div class="nav-links">
-        <a href="../index.html">Home</a>
-        <a href="patient-dashboard.php">Dashboard</a>
-        <a href="../php/auth/logout.php">Logout</a>
+        <a href="../index.html"><i class="bi bi-house"></i> Home</a>
+        <a href="patient-dashboard.php"><i class="bi bi-grid"></i> Dashboard</a>
+        <a href="symptom-checker.php"><i class="bi bi-cpu"></i> AI Checker</a>
+        <a href="graphql-test.html"><i class="bi bi-braces"></i> GraphQL</a>
+        <a href="verify.php"><i class="bi bi-shield-check"></i> Verify</a>
+        <a href="../php/auth/logout.php" style="color:#dc3545;"><i class="bi bi-box-arrow-right"></i> Logout</a>
     </div>
 </nav>
+
 
 <div class="booking-page">
 

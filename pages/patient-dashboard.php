@@ -805,19 +805,23 @@ if ($patient_id > 0) {
             </div>
 
             <div class="sidebar-section">Main</div>
-            <!-- TOP NAVBAR -->
-            <nav class="simple-nav">
-                <div class="logo">
-                    <i class="bi bi-heart-pulse"></i> Doc<span>Book</span>
-                </div>
-                <div class="nav-links">
-                    <a href="../index.html"><i class="bi bi-house"></i> Home</a>
-                    <a href="patient-dashboard.php"><i class="bi bi-grid"></i> Dashboard</a>
-                    <a href="book-appointment.php"><i class="bi bi-calendar-plus"></i> Book</a>
-                    <a href="symptom-checker.php"><i class="bi bi-cpu"></i> AI Checker</a>
-                    <a href="../php/auth/logout.php" style="color:#dc3545;"><i class="bi bi-box-arrow-right"></i> Logout</a>
-                </div>
-            </nav>
+           <!-- TOP NAVBAR -->
+<nav class="simple-nav">
+    <div class="logo">
+        <i class="bi bi-heart-pulse"></i> Doc<span>Book</span>
+    </div>
+    <div class="nav-links">
+        <a href="../index.html"><i class="bi bi-house"></i> Home</a>
+        <a href="patient-dashboard.php"><i class="bi bi-grid"></i> Dashboard</a>
+        <a href="book-appointment.php"><i class="bi bi-calendar-plus"></i> Book Appointment</a>
+        <a href="symptom-checker.php"><i class="bi bi-cpu"></i> AI Checker</a>
+        <a href="graphql-test.html"><i class="bi bi-braces"></i> GraphQL</a>
+        <a href="verify.php"><i class="bi bi-shield-check"></i> Verify</a>
+        <a href="../php/auth/logout.php" style="color:#dc3545;"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    </div>
+</nav>
+
+
         </aside>
 
         <!-- ========== MAIN CONTENT ========== -->

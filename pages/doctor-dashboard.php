@@ -762,9 +762,20 @@ if ($doctor_id > 0) {
                 <div class="nav-links">
                     <a href="../index.html"><i class="bi bi-house"></i> Home</a>
                     <a href="doctor-dashboard.php"><i class="bi bi-grid"></i> Dashboard</a>
+                    <a href="symptom-checker.php"><i class="bi bi-cpu"></i> AI Checker</a>
+                    <a href="graphql-test.html"><i class="bi bi-braces"></i> GraphQL</a>
+                    <a href="verify.php"><i class="bi bi-shield-check"></i> Verify</a>
                     <a href="../php/auth/logout.php" style="color:#dc3545;"><i class="bi bi-box-arrow-right"></i> Logout</a>
                 </div>
-            </nav>
+</nav>
+
+            <div class="sidebar-menu">
+                <a class="active" onclick="switchTab('overview')"><i class="bi bi-speedometer2"></i> Overview</a>
+                <a onclick="switchTab('appointments')"><i class="bi bi-calendar-check"></i> Appointments</a>
+                <a onclick="switchTab('schedule')"><i class="bi bi-clock"></i> Schedule</a>
+                <a onclick="switchTab('patients')"><i class="bi bi-people"></i> Patients</a>
+                <a onclick="switchTab('profile')"><i class="bi bi-person"></i> Edit Profile</a>
+            </div>
         </aside>
 
         <!-- ========== MAIN ========== -->

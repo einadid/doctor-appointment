@@ -1,472 +1,577 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Register - DocBook</title>
-    <link rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Poppins', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            background: #f0f5fa;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Poppins", sans-serif;
+        min-height: 100vh;
+        display: flex;
+        background: #f0f5fa;
+      }
 
-        .register-wrapper {
-            display: flex;
-            width: 100%;
-            min-height: 100vh;
-        }
+      .register-wrapper {
+        display: flex;
+        width: 100%;
+        min-height: 100vh;
+      }
 
-        /* ========== LEFT PANEL ========== */
+      /* ========== LEFT PANEL ========== */
+      .register-left {
+        width: 420px;
+        background: linear-gradient(
+          135deg,
+          #0a1628 0%,
+          #1a3a5c 40%,
+          #1a73e8 100%
+        );
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 50px 40px;
+        position: relative;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+
+      .register-left::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -40%;
+        width: 100%;
+        height: 200%;
+        background: radial-gradient(
+          circle,
+          rgba(52, 211, 153, 0.1),
+          transparent 60%
+        );
+        animation: pulse-bg 6s ease-in-out infinite;
+      }
+
+      @keyframes pulse-bg {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      .register-left .brand {
+        position: relative;
+        z-index: 2;
+      }
+
+      .register-left .brand h1 {
+        font-size: 28px;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 4px;
+      }
+
+      .register-left .brand h1 span {
+        color: #34d399;
+      }
+
+      .register-left .brand p {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 12px;
+      }
+
+      .register-left .welcome-text {
+        margin-top: 45px;
+        position: relative;
+        z-index: 2;
+      }
+
+      .register-left .welcome-text h2 {
+        font-size: 34px;
+        font-weight: 700;
+        color: white;
+        line-height: 1.2;
+        margin-bottom: 12px;
+      }
+
+      .register-left .welcome-text h2 .highlight {
+        background: linear-gradient(135deg, #34d399, #3b82f6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .register-left .welcome-text p {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      .left-steps {
+        margin-top: 40px;
+        position: relative;
+        z-index: 2;
+      }
+
+      .step-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+
+      .step-number {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+
+      .step-number.active {
+        background: #34d399;
+        color: white;
+      }
+
+      .step-number.inactive {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.4);
+        border: 1.5px solid rgba(255, 255, 255, 0.15);
+      }
+
+      .step-text h4 {
+        font-size: 13px;
+        font-weight: 600;
+        color: white;
+      }
+
+      .step-text p {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.4);
+      }
+
+      .step-line {
+        width: 2px;
+        height: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        margin-left: 18px;
+        margin-bottom: 0;
+      }
+
+      /* ========== RIGHT PANEL ========== */
+      .register-right {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        overflow-y: auto;
+      }
+
+      .register-form-card {
+        width: 100%;
+        max-width: 580px;
+      }
+
+      .form-header {
+        margin-bottom: 25px;
+      }
+
+      .form-header h2 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #0a1628;
+        margin-bottom: 4px;
+      }
+
+      .form-header p {
+        color: #6c757d;
+        font-size: 13px;
+      }
+
+      /* Role Selector */
+      .role-selector {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 25px;
+      }
+
+      .role-option {
+        flex: 1;
+        padding: 14px 20px;
+        border: 2px solid #e0e5ec;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-align: center;
+        background: #f8fafb;
+      }
+
+      .role-option:hover {
+        border-color: #1a73e8;
+        background: #f0f7ff;
+      }
+
+      .role-option.active {
+        border-color: #1a73e8;
+        background: #e8f0fe;
+      }
+
+      .role-option i {
+        font-size: 24px;
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .role-option.active i {
+        color: #1a73e8;
+      }
+
+      .role-option span {
+        font-size: 13px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      /* Form Grid */
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .form-grid .full-width {
+        grid-column: 1 / -1;
+      }
+
+      .input-group {
+        position: relative;
+      }
+
+      .input-group label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+        letter-spacing: 0.3px;
+      }
+
+      .input-wrapper {
+        display: flex;
+        align-items: center;
+        border: 1.5px solid #e0e5ec;
+        border-radius: 10px;
+        padding: 0 13px;
+        transition: all 0.3s;
+        background: #f8fafb;
+        height: 44px;
+      }
+
+      .input-wrapper:focus-within {
+        border-color: #1a73e8;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+      }
+
+      .input-wrapper i {
+        color: #9ca3af;
+        font-size: 15px;
+        margin-right: 8px;
+        flex-shrink: 0;
+      }
+
+      .input-wrapper:focus-within i {
+        color: #1a73e8;
+      }
+
+      .input-wrapper input,
+      .input-wrapper select {
+        flex: 1;
+        border: none;
+        outline: none;
+        background: transparent;
+        font-family: "Poppins", sans-serif;
+        font-size: 13px;
+        color: #333;
+        height: 100%;
+      }
+
+      .input-wrapper select {
+        cursor: pointer;
+      }
+
+      /* Validation */
+      .input-wrapper.valid {
+        border-color: #34d399;
+      }
+
+      .input-wrapper.invalid {
+        border-color: #ef4444;
+      }
+
+      .validation-msg {
+        font-size: 11px;
+        margin-top: 3px;
+        display: block;
+        min-height: 15px;
+      }
+
+      .validation-msg.valid {
+        color: #34d399;
+      }
+      .validation-msg.invalid {
+        color: #ef4444;
+      }
+
+      /* Password Strength */
+      .password-strength {
+        display: flex;
+        gap: 4px;
+        margin-top: 6px;
+      }
+
+      .strength-bar {
+        flex: 1;
+        height: 4px;
+        border-radius: 2px;
+        background: #e0e5ec;
+        transition: all 0.3s;
+      }
+
+      .strength-bar.weak {
+        background: #ef4444;
+      }
+      .strength-bar.medium {
+        background: #fbbf24;
+      }
+      .strength-bar.strong {
+        background: #34d399;
+      }
+
+      /* Doctor Fields */
+      .doctor-fields {
+        display: none;
+        margin-top: 5px;
+      }
+
+      .doctor-fields.show {
+        display: block;
+      }
+
+      /* Submit Button */
+      .btn-register {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #1a73e8, #0d47a1);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-family: "Poppins", sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(26, 115, 232, 0.4);
+      }
+
+      .btn-register:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      /* Terms */
+      .terms {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-top: 16px;
+        font-size: 12px;
+        color: #6c757d;
+      }
+
+      .terms input {
+        margin-top: 2px;
+      }
+
+      .terms a {
+        color: #1a73e8;
+        text-decoration: none;
+      }
+
+      /* Divider */
+      .divider {
+        display: flex;
+        align-items: center;
+        margin: 20px 0;
+        color: #9ca3af;
+        font-size: 12px;
+      }
+
+      .divider::before,
+      .divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: #e0e5ec;
+      }
+
+      .divider span {
+        padding: 0 15px;
+      }
+
+      .login-link {
+        text-align: center;
+        font-size: 13px;
+        color: #6c757d;
+      }
+
+      .login-link a {
+        color: #1a73e8;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .back-home {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #6c757d;
+        font-size: 13px;
+        text-decoration: none;
+        margin-top: 15px;
+        transition: all 0.3s;
+      }
+
+      .back-home:hover {
+        color: #1a73e8;
+      }
+
+      @media (max-width: 768px) {
         .register-left {
-            width: 420px;
-            background: linear-gradient(135deg, #0a1628 0%, #1a3a5c 40%, #1a73e8 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 50px 40px;
-            position: relative;
-            overflow: hidden;
-            flex-shrink: 0;
+          display: none;
         }
-
-        .register-left::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -40%;
-            width: 100%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(52,211,153,0.1), transparent 60%);
-            animation: pulse-bg 6s ease-in-out infinite;
-        }
-
-        @keyframes pulse-bg {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        .register-left .brand {
-            position: relative;
-            z-index: 2;
-        }
-
-        .register-left .brand h1 {
-            font-size: 28px;
-            font-weight: 800;
-            color: white;
-            margin-bottom: 4px;
-        }
-
-        .register-left .brand h1 span {
-            color: #34d399;
-        }
-
-        .register-left .brand p {
-            color: rgba(255,255,255,0.5);
-            font-size: 12px;
-        }
-
-        .register-left .welcome-text {
-            margin-top: 45px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .register-left .welcome-text h2 {
-            font-size: 34px;
-            font-weight: 700;
-            color: white;
-            line-height: 1.2;
-            margin-bottom: 12px;
-        }
-
-        .register-left .welcome-text h2 .highlight {
-            background: linear-gradient(135deg, #34d399, #3b82f6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .register-left .welcome-text p {
-            color: rgba(255,255,255,0.6);
-            font-size: 13px;
-            line-height: 1.7;
-        }
-
-        .left-steps {
-            margin-top: 40px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .step-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 18px;
-        }
-
-        .step-number {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-
-        .step-number.active {
-            background: #34d399;
-            color: white;
-        }
-
-        .step-number.inactive {
-            background: rgba(255,255,255,0.1);
-            color: rgba(255,255,255,0.4);
-            border: 1.5px solid rgba(255,255,255,0.15);
-        }
-
-        .step-text h4 {
-            font-size: 13px;
-            font-weight: 600;
-            color: white;
-        }
-
-        .step-text p {
-            font-size: 11px;
-            color: rgba(255,255,255,0.4);
-        }
-
-        .step-line {
-            width: 2px;
-            height: 20px;
-            background: rgba(255,255,255,0.1);
-            margin-left: 18px;
-            margin-bottom: 0;
-        }
-
-        /* ========== RIGHT PANEL ========== */
         .register-right {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            overflow-y: auto;
+          padding: 25px 20px;
         }
-
-        .register-form-card {
-            width: 100%;
-            max-width: 580px;
-        }
-
-        .form-header {
-            margin-bottom: 25px;
-        }
-
-        .form-header h2 {
-            font-size: 24px;
-            font-weight: 700;
-            color: #0a1628;
-            margin-bottom: 4px;
-        }
-
-        .form-header p {
-            color: #6c757d;
-            font-size: 13px;
-        }
-
-        /* Role Selector */
-        .role-selector {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 25px;
-        }
-
-        .role-option {
-            flex: 1;
-            padding: 14px 20px;
-            border: 2px solid #e0e5ec;
-            border-radius: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-            background: #f8fafb;
-        }
-
-        .role-option:hover {
-            border-color: #1a73e8;
-            background: #f0f7ff;
-        }
-
-        .role-option.active {
-            border-color: #1a73e8;
-            background: #e8f0fe;
-        }
-
-        .role-option i {
-            font-size: 24px;
-            display: block;
-            margin-bottom: 6px;
-        }
-
-        .role-option.active i {
-            color: #1a73e8;
-        }
-
-        .role-option span {
-            font-size: 13px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        /* Form Grid */
         .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
+          grid-template-columns: 1fr;
         }
+      }
+      .simple-nav {
+        position: sticky;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 9999;
+        background: white;
+        border-bottom: 3px solid #1a73e8;
+        padding: 12px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      }
 
-        .form-grid .full-width {
-            grid-column: 1 / -1;
+      .simple-nav .logo {
+        font-size: 20px;
+        font-weight: bold;
+        color: #1a73e8;
+      }
+
+      .simple-nav .logo span {
+        color: #198754;
+      }
+
+      .simple-nav .nav-links {
+        display: flex;
+        gap: 18px;
+        align-items: center;
+      }
+
+      .simple-nav .nav-links a {
+        color: #555;
+        font-size: 13px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .simple-nav .nav-links a:hover {
+        color: #1a73e8;
+      }
+
+      .simple-nav .nav-links .nav-btn {
+        padding: 7px 18px;
+        border-radius: 5px;
+        font-size: 13px;
+        font-weight: bold;
+      }
+
+      .simple-nav .nav-links .nav-login {
+        color: #1a73e8;
+        border: 2px solid #1a73e8;
+        background: white;
+      }
+
+      .simple-nav .nav-links .nav-login:hover {
+          background: #1a73e8;
+          color: white;
         }
-
-        .input-group {
-            position: relative;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-            letter-spacing: 0.3px;
-        }
-
-        .input-wrapper {
-            display: flex;
-            align-items: center;
-            border: 1.5px solid #e0e5ec;
-            border-radius: 10px;
-            padding: 0 13px;
-            transition: all 0.3s;
-            background: #f8fafb;
-            height: 44px;
-        }
-
-        .input-wrapper:focus-within {
-            border-color: #1a73e8;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(26,115,232,0.1);
-        }
-
-        .input-wrapper i {
-            color: #9ca3af;
-            font-size: 15px;
-            margin-right: 8px;
-            flex-shrink: 0;
-        }
-
-        .input-wrapper:focus-within i {
-            color: #1a73e8;
-        }
-
-        .input-wrapper input,
-        .input-wrapper select {
-            flex: 1;
-            border: none;
-            outline: none;
-            background: transparent;
-            font-family: 'Poppins', sans-serif;
-            font-size: 13px;
-            color: #333;
-            height: 100%;
-        }
-
-        .input-wrapper select {
-            cursor: pointer;
-        }
-
-        /* Validation */
-        .input-wrapper.valid {
-            border-color: #34d399;
-        }
-
-        .input-wrapper.invalid {
-            border-color: #ef4444;
-        }
-
-        .validation-msg {
-            font-size: 11px;
-            margin-top: 3px;
-            display: block;
-            min-height: 15px;
-        }
-
-        .validation-msg.valid { color: #34d399; }
-        .validation-msg.invalid { color: #ef4444; }
-
-        /* Password Strength */
-        .password-strength {
-            display: flex;
-            gap: 4px;
-            margin-top: 6px;
-        }
-
-        .strength-bar {
-            flex: 1;
-            height: 4px;
-            border-radius: 2px;
-            background: #e0e5ec;
-            transition: all 0.3s;
-        }
-
-        .strength-bar.weak { background: #ef4444; }
-        .strength-bar.medium { background: #fbbf24; }
-        .strength-bar.strong { background: #34d399; }
-
-        /* Doctor Fields */
-        .doctor-fields {
-            display: none;
-            margin-top: 5px;
-        }
-
-        .doctor-fields.show {
-            display: block;
-        }
-
-        /* Submit Button */
-        .btn-register {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #1a73e8, #0d47a1);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-family: 'Poppins', sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .btn-register:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(26,115,232,0.4);
-        }
-
-        .btn-register:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        /* Terms */
-        .terms {
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            margin-top: 16px;
-            font-size: 12px;
-            color: #6c757d;
-        }
-
-        .terms input {
-            margin-top: 2px;
-        }
-
-        .terms a {
-            color: #1a73e8;
-            text-decoration: none;
-        }
-
-        /* Divider */
-        .divider {
-            display: flex;
-            align-items: center;
-            margin: 20px 0;
-            color: #9ca3af;
-            font-size: 12px;
-        }
-
-        .divider::before, .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: #e0e5ec;
-        }
-
-        .divider span { padding: 0 15px; }
-
-        .login-link {
-            text-align: center;
-            font-size: 13px;
-            color: #6c757d;
-        }
-
-        .login-link a {
-            color: #1a73e8;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .back-home {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: #6c757d;
-            font-size: 13px;
-            text-decoration: none;
-            margin-top: 15px;
-            transition: all 0.3s;
-        }
-
-        .back-home:hover { color: #1a73e8; }
-
-        @media (max-width: 768px) {
-            .register-left { display: none; }
-            .register-right { padding: 25px 20px; }
-            .form-grid { grid-template-columns: 1fr; }
-        }
-    </style>
-</head>
-<body>
-
-<div class="register-wrapper">
-
-    <!-- ========== LEFT PANEL ========== -->
-    <div class="register-left">
-        <div class="brand">
-            <h1><i class="bi bi-heart-pulse"></i> Doc<span>Book</span></h1>
-            <p>Online Doctor Appointment System</p>
-        </div>
-
-        <div class="welcome-text">
-            <h2>
-                Create Your<br>
-                <span class="highlight">Account</span>
-            </h2>
-            <p>
-                Join thousands of patients and doctors on the most
-                trusted healthcare platform in Bangladesh.
-            </p>
+        </style>
+  </head>
+  <body>
+      <div class="register-wrapper">
+          <!-- ========== LEFT PANEL ========== -->
+          <div class="register-left">
+              <div class="brand">
+                  <h1><i class="bi bi-heart-pulse"></i> Doc<span>Book</span></h1>
+                  <p>Online Doctor Appointment System</p>
+                </div>
+                
+                <div class="welcome-text">
+                    <h2>
+                        Create Your<br />
+                        <span class="highlight">Account</span>
+                    </h2>
+                    <p>
+                        Join thousands of patients and doctors on the most trusted
+                        healthcare platform in Bangladesh.
+                    </p>
         </div>
 
         <div class="left-steps">
@@ -478,26 +583,26 @@
                 </div>
             </div>
             <div class="step-line"></div>
-
+            
             <div class="step-item">
-                <div class="step-number inactive">2</div>
-                <div class="step-text">
-                    <h4>Verify Account</h4>
-                    <p>Email & phone OTP verification</p>
-                </div>
-            </div>
-            <div class="step-line"></div>
-
-            <div class="step-item">
-                <div class="step-number inactive">3</div>
-                <div class="step-text">
-                    <h4>Start Booking</h4>
-                    <p>Book your first appointment</p>
-                </div>
+            <div class="step-number inactive">2</div>
+            <div class="step-text">
+              <h4>Verify Account</h4>
+              <p>Email & phone OTP verification</p>
             </div>
         </div>
+        <div class="step-line"></div>
+        
+        <div class="step-item">
+            <div class="step-number inactive">3</div>
+            <div class="step-text">
+                <h4>Start Booking</h4>
+                <p>Book your first appointment</p>
+            </div>
+          </div>
+        </div>
     </div>
-
+    
     <!-- ========== RIGHT PANEL ========== -->
     <div class="register-right">
         <div class="register-form-card">
@@ -505,481 +610,555 @@
                 <h2>Sign Up</h2>
                 <p>Fill in the details to create your account</p>
             </div>
-
-            <!-- Role Selector -->
-            <div class="role-selector">
-                <div class="role-option active"
-                     id="role-patient"
-                     onclick="selectRole('patient')">
-                    <i class="bi bi-person-heart"></i>
-                    <span>Patient</span>
+            
+          <!-- Role Selector -->
+          <div class="role-selector">
+              <div
+              class="role-option active"
+              id="role-patient"
+              onclick="selectRole('patient')"
+              >
+              <i class="bi bi-person-heart"></i>
+              <span>Patient</span>
+            </div>
+            <div
+              class="role-option"
+              id="role-doctor"
+              onclick="selectRole('doctor')"
+              >
+              <i class="bi bi-person-badge"></i>
+              <span>Doctor</span>
+            </div>
+        </div>
+        
+        <form
+        id="registerForm"
+        action="../php/auth/register-process.php"
+        method="POST"
+        >
+        <input type="hidden" name="role" id="roleInput" value="patient" />
+        
+        <div class="form-grid">
+            <!-- Full Name -->
+              <div class="input-group">
+                  <label>Full Name</label>
+                  <div class="input-wrapper" id="name-wrapper">
+                      <i class="bi bi-person"></i>
+                      <input
+                      type="text"
+                      name="full_name"
+                      id="fullName"
+                      placeholder="John Doe"
+                      required
+                  />
                 </div>
-                <div class="role-option"
-                     id="role-doctor"
-                     onclick="selectRole('doctor')">
-                    <i class="bi bi-person-badge"></i>
-                    <span>Doctor</span>
+                <small class="validation-msg" id="name-msg"></small>
+              </div>
+              
+              <!-- Username -->
+              <div class="input-group">
+                <label>Username</label>
+                <div class="input-wrapper" id="username-wrapper">
+                  <i class="bi bi-at"></i>
+                  <input
+                    type="text"
+                    name="username"
+                    id="username"
+                    placeholder="johndoe"
+                    required
+                  />
+                </div>
+                <small class="validation-msg" id="user-status"></small>
+            </div>
+            
+            <!-- Email -->
+            <div class="input-group">
+                <label>Email Address</label>
+                <div class="input-wrapper" id="email-wrapper">
+                    <i class="bi bi-envelope"></i>
+                    <input
+                    type="email"
+                    name="email"
+                    id="email"
+                    placeholder="john@email.com"
+                    required
+                    />
+                </div>
+                <small class="validation-msg" id="email-status"></small>
+            </div>
+            
+            <!-- Phone -->
+            <div class="input-group">
+                <label>Phone Number</label>
+                <div class="input-wrapper" id="phone-wrapper">
+                    <i class="bi bi-phone"></i>
+                  <input
+                  type="text"
+                  name="phone"
+                  id="phone"
+                    placeholder="01XXXXXXXXX"
+                    required
+                  />
+                </div>
+                <small class="validation-msg" id="phone-status"></small>
+            </div>
+
+            <!-- Date of Birth -->
+              <div class="input-group">
+                  <label>Date of Birth</label>
+                <div class="input-wrapper">
+                    <i class="bi bi-calendar3"></i>
+                    <input
+                    type="text"
+                    name="dob"
+                    id="dob"
+                    placeholder="Select date"
+                    required
+                    />
                 </div>
             </div>
 
-            <form id="registerForm"
-                  action="../php/auth/register-process.php"
-                  method="POST">
-
-                <input type="hidden" name="role" id="roleInput" value="patient">
-
-                <div class="form-grid">
-
-                    <!-- Full Name -->
-                    <div class="input-group">
-                        <label>Full Name</label>
-                        <div class="input-wrapper" id="name-wrapper">
-                            <i class="bi bi-person"></i>
-                            <input type="text" name="full_name"
-                                   id="fullName"
-                                   placeholder="John Doe" required>
-                        </div>
-                        <small class="validation-msg" id="name-msg"></small>
-                    </div>
-
-                    <!-- Username -->
-                    <div class="input-group">
-                        <label>Username</label>
-                        <div class="input-wrapper" id="username-wrapper">
-                            <i class="bi bi-at"></i>
-                            <input type="text" name="username"
-                                   id="username"
-                                   placeholder="johndoe" required>
-                        </div>
-                        <small class="validation-msg" id="user-status"></small>
-                    </div>
-
-                    <!-- Email -->
-                    <div class="input-group">
-                        <label>Email Address</label>
-                        <div class="input-wrapper" id="email-wrapper">
-                            <i class="bi bi-envelope"></i>
-                            <input type="email" name="email"
-                                   id="email"
-                                   placeholder="john@email.com" required>
-                        </div>
-                        <small class="validation-msg" id="email-status"></small>
-                    </div>
-
-                    <!-- Phone -->
-                    <div class="input-group">
-                        <label>Phone Number</label>
-                        <div class="input-wrapper" id="phone-wrapper">
-                            <i class="bi bi-phone"></i>
-                            <input type="text" name="phone"
-                                   id="phone"
-                                   placeholder="01XXXXXXXXX" required>
-                        </div>
-                        <small class="validation-msg" id="phone-status"></small>
-                    </div>
-
-                    <!-- Date of Birth -->
-                    <div class="input-group">
-                        <label>Date of Birth</label>
-                        <div class="input-wrapper">
-                            <i class="bi bi-calendar3"></i>
-                            <input type="text" name="dob"
-                                   id="dob"
-                                   placeholder="Select date" required>
-                        </div>
-                    </div>
-
-                    <!-- Gender -->
-                    <div class="input-group">
-                        <label>Gender</label>
-                        <div class="input-wrapper">
-                            <i class="bi bi-gender-ambiguous"></i>
-                            <select name="gender" required>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Password -->
-                    <div class="input-group full-width">
-                        <label>Password</label>
-                        <div class="input-wrapper" id="pass-wrapper">
-                            <i class="bi bi-lock"></i>
-                            <input type="password" name="password"
-                                   id="password"
-                                   placeholder="Minimum 6 characters" required>
-                            <i class="bi bi-eye"
-                               style="cursor:pointer; color:#9ca3af;"
-                               onclick="togglePassword()"></i>
-                        </div>
-                        <div class="password-strength" id="passStrength">
-                            <div class="strength-bar" id="str1"></div>
-                            <div class="strength-bar" id="str2"></div>
-                            <div class="strength-bar" id="str3"></div>
-                            <div class="strength-bar" id="str4"></div>
-                        </div>
-                        <small class="validation-msg" id="pass-status"></small>
-                    </div>
-
+            <!-- Gender -->
+            <div class="input-group">
+                <label>Gender</label>
+                <div class="input-wrapper">
+                    <i class="bi bi-gender-ambiguous"></i>
+                  <select name="gender" required>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
                 </div>
-
-                <!-- Doctor Only Fields -->
-                <div class="doctor-fields" id="doctorFields">
-                    <div class="form-grid" style="margin-top:16px;">
-                        <div class="input-group">
-                            <label>Specialty</label>
-                            <div class="input-wrapper">
-                                <i class="bi bi-award"></i>
-                                <select name="specialty_id" id="specialtySelect">
-                                    <option value="">Loading...</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="input-group">
-                            <label>Qualification</label>
-                            <div class="input-wrapper">
-                                <i class="bi bi-mortarboard"></i>
-                                <input type="text" name="qualification"
-                                       placeholder="e.g. MBBS, MD">
-                            </div>
-                        </div>
-                    </div>
+              </div>
+              
+              <!-- Password -->
+              <div class="input-group full-width">
+                  <label>Password</label>
+                  <div class="input-wrapper" id="pass-wrapper">
+                  <i class="bi bi-lock"></i>
+                  <input
+                    type="password"
+                    name="password"
+                    id="password"
+                    placeholder="Minimum 6 characters"
+                    required
+                    />
+                    <i
+                    class="bi bi-eye"
+                    style="cursor: pointer; color: #9ca3af"
+                    onclick="togglePassword()"
+                    ></i>
                 </div>
-
-                <!-- Terms -->
-                <div class="terms">
-                    <input type="checkbox" id="agreeTerms" required>
-                    <span>
-                        I agree to the
-                        <a href="#">Terms of Service</a> and
-                        <a href="#">Privacy Policy</a>
-                    </span>
+                <div class="password-strength" id="passStrength">
+                    <div class="strength-bar" id="str1"></div>
+                    <div class="strength-bar" id="str2"></div>
+                    <div class="strength-bar" id="str3"></div>
+                    <div class="strength-bar" id="str4"></div>
                 </div>
-
-                <!-- Submit -->
-                <button type="submit" class="btn-register" id="submitBtn">
-                    <i class="bi bi-person-plus"></i>
-                    Create Account
-                </button>
-
-            </form>
-
-            <div class="divider"><span>or</span></div>
-
-            <div class="login-link">
-                Already have an account?
-                <a href="login.html">Sign In</a>
+                <small class="validation-msg" id="pass-status"></small>
             </div>
-
-            <a href="../index.html" class="back-home">
-                <i class="bi bi-arrow-left"></i> Back to Home
-            </a>
+            </div>
+            
+            <!-- Doctor Only Fields -->
+            <div class="doctor-fields" id="doctorFields">
+              <div class="form-grid" style="margin-top: 16px">
+                  <div class="input-group">
+                      <label>Specialty</label>
+                      <div class="input-wrapper">
+                          <i class="bi bi-award"></i>
+                          <select name="specialty_id" id="specialtySelect">
+                              <option value="">Loading...</option>
+                    </select>
+                </div>
+            </div>
+                <div class="input-group">
+                    <label>Qualification</label>
+                    <div class="input-wrapper">
+                        <i class="bi bi-mortarboard"></i>
+                    <input
+                    type="text"
+                      name="qualification"
+                      placeholder="e.g. MBBS, MD"
+                    />
+                </div>
+            </div>
         </div>
     </div>
-</div>
+    
+            <!-- Terms -->
+            <div class="terms">
+              <input type="checkbox" id="agreeTerms" required />
+              <span>
+                  I agree to the
+                  <a href="#">Terms of Service</a> and
+                  <a href="#">Privacy Policy</a>
+                </span>
+            </div>
+            
+            <!-- Submit -->
+            <button type="submit" class="btn-register" id="submitBtn">
+              <i class="bi bi-person-plus"></i>
+              Create Account
+            </button>
+        </form>
+        
+        
+        
+        <!-- NAVBAR -->
+        <nav class="simple-nav">
+          <div class="logo">
+            <i class="bi bi-heart-pulse"></i> Doc<span>Book</span>
+          </div>
+          <div class="nav-links">
+            <a href="../index.html"><i class="bi bi-house"></i> Home</a>
+            <a href="../index.html#features"
+              ><i class="bi bi-grid"></i> Features</a
+            >
+            <a href="../index.html#doctors"
+              ><i class="bi bi-person-badge"></i> Doctors</a
+            >
+            <a href="../index.html#contact"
+              ><i class="bi bi-geo-alt"></i> Contact</a
+            >
+            <a href="login.html" class="nav-btn nav-login"
+              ><i class="bi bi-box-arrow-in-right"></i> Login</a
+            >
+          </div>
+        </nav>
+        </div>
+      </div>
+    </div>
 
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
-<script>
-// ================================
-// GSAP Animations
-// ================================
-gsap.from('.brand', {
-    duration: 0.8, y: -30, opacity: 0, ease: "power3.out"
-});
-gsap.from('.welcome-text', {
-    duration: 0.8, y: 30, opacity: 0, delay: 0.2, ease: "power3.out"
-});
-gsap.from('.step-item', {
-    duration: 0.5, x: -30, opacity: 0,
-    stagger: 0.15, delay: 0.5, ease: "power3.out"
-});
-gsap.from('.register-form-card', {
-    duration: 0.8, x: 40, opacity: 0, delay: 0.3, ease: "power3.out"
-});
-gsap.from('.input-group', {
-    duration: 0.4, y: 15, opacity: 0,
-    stagger: 0.08, delay: 0.5, ease: "power3.out"
-});
+    <script>
+      // ================================
+      // GSAP Animations
+      // ================================
+      gsap.from(".brand", {
+        duration: 0.8,
+        y: -30,
+        opacity: 0,
+        ease: "power3.out",
+      });
+      gsap.from(".welcome-text", {
+        duration: 0.8,
+        y: 30,
+        opacity: 0,
+        delay: 0.2,
+        ease: "power3.out",
+      });
+      gsap.from(".step-item", {
+        duration: 0.5,
+        x: -30,
+        opacity: 0,
+        stagger: 0.15,
+        delay: 0.5,
+        ease: "power3.out",
+      });
+      gsap.from(".register-form-card", {
+        duration: 0.8,
+        x: 40,
+        opacity: 0,
+        delay: 0.3,
+        ease: "power3.out",
+      });
+      gsap.from(".input-group", {
+        duration: 0.4,
+        y: 15,
+        opacity: 0,
+        stagger: 0.08,
+        delay: 0.5,
+        ease: "power3.out",
+      });
 
-// ================================
-// Datepicker
-// ================================
-flatpickr("#dob", {
-    dateFormat: "Y-m-d",
-    maxDate: "today"
-});
+      // ================================
+      // Datepicker
+      // ================================
+      flatpickr("#dob", {
+        dateFormat: "Y-m-d",
+        maxDate: "today",
+      });
 
-// ================================
-// Role Selection
-// ================================
-function selectRole(role) {
-    document.getElementById('roleInput').value = role;
+      // ================================
+      // Role Selection
+      // ================================
+      function selectRole(role) {
+        document.getElementById("roleInput").value = role;
 
-    document.querySelectorAll('.role-option').forEach(el => {
-        el.classList.remove('active');
-    });
-    document.getElementById(`role-${role}`).classList.add('active');
-
-    let doctorFields = document.getElementById('doctorFields');
-    if(role === 'doctor') {
-        doctorFields.classList.add('show');
-        loadSpecialties();
-        gsap.from('.doctor-fields', {
-            duration: 0.4, y: 20, opacity: 0, ease: "power2.out"
+        document.querySelectorAll(".role-option").forEach((el) => {
+          el.classList.remove("active");
         });
-    } else {
-        doctorFields.classList.remove('show');
-    }
-}
+        document.getElementById(`role-${role}`).classList.add("active");
 
-// ================================
-// Load Specialties
-// ================================
-function loadSpecialties() {
-    let select = document.getElementById('specialtySelect');
-    if(select.options.length > 1) return;
+        let doctorFields = document.getElementById("doctorFields");
+        if (role === "doctor") {
+          doctorFields.classList.add("show");
+          loadSpecialties();
+          gsap.from(".doctor-fields", {
+            duration: 0.4,
+            y: 20,
+            opacity: 0,
+            ease: "power2.out",
+          });
+        } else {
+          doctorFields.classList.remove("show");
+        }
+      }
 
-    fetch('../php/api/get-specialties.php')
-        .then(res => res.json())
-        .then(data => {
-            select.innerHTML = '';
-            data.forEach(s => {
-                select.innerHTML += `
+      // ================================
+      // Load Specialties
+      // ================================
+      function loadSpecialties() {
+        let select = document.getElementById("specialtySelect");
+        if (select.options.length > 1) return;
+
+        fetch("../php/api/get-specialties.php")
+          .then((res) => res.json())
+          .then((data) => {
+            select.innerHTML = "";
+            data.forEach((s) => {
+              select.innerHTML += `
                     <option value="${s.id}">${s.name}</option>`;
             });
-        })
-        .catch(() => {
+          })
+          .catch(() => {
             select.innerHTML = `
                 <option value="1">Medicine</option>
                 <option value="2">Cardiology</option>
                 <option value="3">Dermatology</option>
                 <option value="4">Neurology</option>
                 <option value="5">Orthopedics</option>`;
-        });
-}
+          });
+      }
 
-// ================================
-// Real-time Username Check
-// ================================
-let usernameTimer;
-document.getElementById('username').addEventListener('input', function() {
-    let val = this.value.trim();
-    let status = document.getElementById('user-status');
-    let wrapper = document.getElementById('username-wrapper');
+      // ================================
+      // Real-time Username Check
+      // ================================
+      let usernameTimer;
+      document
+        .getElementById("username")
+        .addEventListener("input", function () {
+          let val = this.value.trim();
+          let status = document.getElementById("user-status");
+          let wrapper = document.getElementById("username-wrapper");
 
-    clearTimeout(usernameTimer);
+          clearTimeout(usernameTimer);
 
-    if(val.length < 3) {
-        status.textContent = 'Minimum 3 characters';
-        status.className = 'validation-msg invalid';
-        wrapper.className = 'input-wrapper invalid';
-        return;
-    }
+          if (val.length < 3) {
+            status.textContent = "Minimum 3 characters";
+            status.className = "validation-msg invalid";
+            wrapper.className = "input-wrapper invalid";
+            return;
+          }
 
-    status.textContent = 'Checking...';
-    status.className = 'validation-msg';
-    status.style.color = '#6c757d';
+          status.textContent = "Checking...";
+          status.className = "validation-msg";
+          status.style.color = "#6c757d";
 
-    usernameTimer = setTimeout(() => {
-        fetch(`../php/auth/check-username.php?username=${val}`)
-            .then(res => res.json())
-            .then(data => {
-                if(data.exists) {
-                    status.textContent = '✖ Username already taken';
-                    status.className = 'validation-msg invalid';
-                    wrapper.className = 'input-wrapper invalid';
+          usernameTimer = setTimeout(() => {
+            fetch(`../php/auth/check-username.php?username=${val}`)
+              .then((res) => res.json())
+              .then((data) => {
+                if (data.exists) {
+                  status.textContent = "✖ Username already taken";
+                  status.className = "validation-msg invalid";
+                  wrapper.className = "input-wrapper invalid";
                 } else {
-                    status.textContent = '✓ Username available';
-                    status.className = 'validation-msg valid';
-                    wrapper.className = 'input-wrapper valid';
+                  status.textContent = "✓ Username available";
+                  status.className = "validation-msg valid";
+                  wrapper.className = "input-wrapper valid";
                 }
-            })
-            .catch(() => {
-                status.textContent = '';
-            });
-    }, 400);
-});
+              })
+              .catch(() => {
+                status.textContent = "";
+              });
+          }, 400);
+        });
 
-// ================================
-// Email Validation
-// ================================
-document.getElementById('email').addEventListener('input', function() {
-    let val = this.value.trim();
-    let status = document.getElementById('email-status');
-    let wrapper = document.getElementById('email-wrapper');
-    let regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      // ================================
+      // Email Validation
+      // ================================
+      document.getElementById("email").addEventListener("input", function () {
+        let val = this.value.trim();
+        let status = document.getElementById("email-status");
+        let wrapper = document.getElementById("email-wrapper");
+        let regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if(!val) {
-        status.textContent = '';
-        wrapper.className = 'input-wrapper';
-        return;
-    }
+        if (!val) {
+          status.textContent = "";
+          wrapper.className = "input-wrapper";
+          return;
+        }
 
-    if(regex.test(val)) {
-        status.textContent = '✓ Valid email';
-        status.className = 'validation-msg valid';
-        wrapper.className = 'input-wrapper valid';
-    } else {
-        status.textContent = '✖ Invalid email format';
-        status.className = 'validation-msg invalid';
-        wrapper.className = 'input-wrapper invalid';
-    }
-});
+        if (regex.test(val)) {
+          status.textContent = "✓ Valid email";
+          status.className = "validation-msg valid";
+          wrapper.className = "input-wrapper valid";
+        } else {
+          status.textContent = "✖ Invalid email format";
+          status.className = "validation-msg invalid";
+          wrapper.className = "input-wrapper invalid";
+        }
+      });
 
-// ================================
-// Phone Validation
-// ================================
-document.getElementById('phone').addEventListener('input', function() {
-    let val = this.value.trim();
-    let status = document.getElementById('phone-status');
-    let wrapper = document.getElementById('phone-wrapper');
-    let regex = /^01[3-9]\d{8}$/;
+      // ================================
+      // Phone Validation
+      // ================================
+      document.getElementById("phone").addEventListener("input", function () {
+        let val = this.value.trim();
+        let status = document.getElementById("phone-status");
+        let wrapper = document.getElementById("phone-wrapper");
+        let regex = /^01[3-9]\d{8}$/;
 
-    if(!val) {
-        status.textContent = '';
-        wrapper.className = 'input-wrapper';
-        return;
-    }
+        if (!val) {
+          status.textContent = "";
+          wrapper.className = "input-wrapper";
+          return;
+        }
 
-    if(regex.test(val)) {
-        status.textContent = '✓ Valid phone number';
-        status.className = 'validation-msg valid';
-        wrapper.className = 'input-wrapper valid';
-    } else {
-        status.textContent = '✖ Enter valid BD number (01XXXXXXXXX)';
-        status.className = 'validation-msg invalid';
-        wrapper.className = 'input-wrapper invalid';
-    }
-});
+        if (regex.test(val)) {
+          status.textContent = "✓ Valid phone number";
+          status.className = "validation-msg valid";
+          wrapper.className = "input-wrapper valid";
+        } else {
+          status.textContent = "✖ Enter valid BD number (01XXXXXXXXX)";
+          status.className = "validation-msg invalid";
+          wrapper.className = "input-wrapper invalid";
+        }
+      });
 
-// ================================
-// Password Strength
-// ================================
-document.getElementById('password').addEventListener('input', function() {
-    let val = this.value;
-    let status = document.getElementById('pass-status');
-    let bars = ['str1', 'str2', 'str3', 'str4'];
-    let score = 0;
+      // ================================
+      // Password Strength
+      // ================================
+      document
+        .getElementById("password")
+        .addEventListener("input", function () {
+          let val = this.value;
+          let status = document.getElementById("pass-status");
+          let bars = ["str1", "str2", "str3", "str4"];
+          let score = 0;
 
-    // Reset
-    bars.forEach(b => {
-        document.getElementById(b).className = 'strength-bar';
-    });
+          // Reset
+          bars.forEach((b) => {
+            document.getElementById(b).className = "strength-bar";
+          });
 
-    if(val.length >= 6) score++;
-    if(val.length >= 8) score++;
-    if(/[A-Z]/.test(val) && /[0-9]/.test(val)) score++;
-    if(/[^A-Za-z0-9]/.test(val)) score++;
+          if (val.length >= 6) score++;
+          if (val.length >= 8) score++;
+          if (/[A-Z]/.test(val) && /[0-9]/.test(val)) score++;
+          if (/[^A-Za-z0-9]/.test(val)) score++;
 
-    let colors = ['weak', 'weak', 'medium', 'strong'];
-    let messages = [
-        '✖ Too weak',
-        '✖ Weak password',
-        '⚬ Medium strength',
-        '✓ Strong password'
-    ];
-    let msgColors = ['invalid', 'invalid', '', 'valid'];
+          let colors = ["weak", "weak", "medium", "strong"];
+          let messages = [
+            "✖ Too weak",
+            "✖ Weak password",
+            "⚬ Medium strength",
+            "✓ Strong password",
+          ];
+          let msgColors = ["invalid", "invalid", "", "valid"];
 
-    for(let i = 0; i < score; i++) {
-        document.getElementById(bars[i]).classList.add(colors[score - 1]);
-    }
+          for (let i = 0; i < score; i++) {
+            document.getElementById(bars[i]).classList.add(colors[score - 1]);
+          }
 
-    if(val.length > 0) {
-        status.textContent = messages[score - 1] || '✖ Too short';
-        status.className = `validation-msg ${msgColors[score - 1] || 'invalid'}`;
-    } else {
-        status.textContent = '';
-    }
-});
+          if (val.length > 0) {
+            status.textContent = messages[score - 1] || "✖ Too short";
+            status.className = `validation-msg ${msgColors[score - 1] || "invalid"}`;
+          } else {
+            status.textContent = "";
+          }
+        });
 
-// ================================
-// Toggle Password
-// ================================
-function togglePassword() {
-    let pass = document.getElementById('password');
-    let icon = pass.nextElementSibling;
-    if(pass.type === 'password') {
-        pass.type = 'text';
-        icon.classList.replace('bi-eye', 'bi-eye-slash');
-    } else {
-        pass.type = 'password';
-        icon.classList.replace('bi-eye-slash', 'bi-eye');
-    }
-}
+      // ================================
+      // Toggle Password
+      // ================================
+      function togglePassword() {
+        let pass = document.getElementById("password");
+        let icon = pass.nextElementSibling;
+        if (pass.type === "password") {
+          pass.type = "text";
+          icon.classList.replace("bi-eye", "bi-eye-slash");
+        } else {
+          pass.type = "password";
+          icon.classList.replace("bi-eye-slash", "bi-eye");
+        }
+      }
 
-// ================================
-// Full Name Validation
-// ================================
-document.getElementById('fullName').addEventListener('input', function() {
-    let val = this.value.trim();
-    let status = document.getElementById('name-msg');
-    let wrapper = document.getElementById('name-wrapper');
+      // ================================
+      // Full Name Validation
+      // ================================
+      document
+        .getElementById("fullName")
+        .addEventListener("input", function () {
+          let val = this.value.trim();
+          let status = document.getElementById("name-msg");
+          let wrapper = document.getElementById("name-wrapper");
 
-    if(val.length >= 3) {
-        status.textContent = '✓ Looks good';
-        status.className = 'validation-msg valid';
-        wrapper.className = 'input-wrapper valid';
-    } else if(val.length > 0) {
-        status.textContent = '✖ At least 3 characters';
-        status.className = 'validation-msg invalid';
-        wrapper.className = 'input-wrapper invalid';
-    } else {
-        status.textContent = '';
-        wrapper.className = 'input-wrapper';
-    }
-});
+          if (val.length >= 3) {
+            status.textContent = "✓ Looks good";
+            status.className = "validation-msg valid";
+            wrapper.className = "input-wrapper valid";
+          } else if (val.length > 0) {
+            status.textContent = "✖ At least 3 characters";
+            status.className = "validation-msg invalid";
+            wrapper.className = "input-wrapper invalid";
+          } else {
+            status.textContent = "";
+            wrapper.className = "input-wrapper";
+          }
+        });
 
-// ================================
-// Form Submit Validation
-// ================================
-document.getElementById('registerForm').addEventListener('submit', function(e) {
-    let username = document.getElementById('username').value.trim();
-    let email = document.getElementById('email').value.trim();
-    let phone = document.getElementById('phone').value.trim();
-    let password = document.getElementById('password').value;
-    let agree = document.getElementById('agreeTerms').checked;
+      // ================================
+      // Form Submit Validation
+      // ================================
+      document
+        .getElementById("registerForm")
+        .addEventListener("submit", function (e) {
+          let username = document.getElementById("username").value.trim();
+          let email = document.getElementById("email").value.trim();
+          let phone = document.getElementById("phone").value.trim();
+          let password = document.getElementById("password").value;
+          let agree = document.getElementById("agreeTerms").checked;
 
-    if(username.length < 3) {
-        e.preventDefault();
-        alert('Username must be at least 3 characters!');
-        return;
-    }
+          if (username.length < 3) {
+            e.preventDefault();
+            alert("Username must be at least 3 characters!");
+            return;
+          }
 
-    if(password.length < 6) {
-        e.preventDefault();
-        alert('Password must be at least 6 characters!');
-        return;
-    }
+          if (password.length < 6) {
+            e.preventDefault();
+            alert("Password must be at least 6 characters!");
+            return;
+          }
 
-    if(!(/^01[3-9]\d{8}$/).test(phone)) {
-        e.preventDefault();
-        alert('Enter a valid Bangladesh phone number!');
-        return;
-    }
+          if (!/^01[3-9]\d{8}$/.test(phone)) {
+            e.preventDefault();
+            alert("Enter a valid Bangladesh phone number!");
+            return;
+          }
 
-    if(!(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).test(email)) {
-        e.preventDefault();
-        alert('Enter a valid email address!');
-        return;
-    }
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            e.preventDefault();
+            alert("Enter a valid email address!");
+            return;
+          }
 
-    if(!agree) {
-        e.preventDefault();
-        alert('Please agree to Terms & Privacy Policy!');
-        return;
-    }
+          if (!agree) {
+            e.preventDefault();
+            alert("Please agree to Terms & Privacy Policy!");
+            return;
+          }
 
-    // Show loading
-    let btn = document.getElementById('submitBtn');
-    btn.innerHTML = '<span class="spinner" style="width:18px;height:18px;border-width:2px;"></span> Creating...';
-    btn.disabled = true;
-});
-</script>
-
-</body>
+          // Show loading
+          let btn = document.getElementById("submitBtn");
+          btn.innerHTML =
+            '<span class="spinner" style="width:18px;height:18px;border-width:2px;"></span> Creating...';
+          btn.disabled = true;
+        });
+    </script>
+  </body>
 </html>

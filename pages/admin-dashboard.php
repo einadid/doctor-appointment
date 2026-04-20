@@ -819,6 +819,17 @@ $revenue = mysqli_fetch_assoc(mysqli_query(
         .main {
             margin-top: 50px !important;
         }
+        /* Stats Grid Fix */
+.stats-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 14px !important;
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
     </style>
 </head>
 
@@ -837,17 +848,29 @@ $revenue = mysqli_fetch_assoc(mysqli_query(
             </div>
 
             <div class="sidebar-section">Dashboard</div>
-            <!-- TOP NAVBAR -->
-            <nav class="simple-nav">
-                <div class="logo">
-                    <i class="bi bi-heart-pulse"></i> Doc<span>Book</span>
-                </div>
-                <div class="nav-links">
-                    <a href="../index.html"><i class="bi bi-house"></i> Home</a>
-                    <a href="admin-dashboard.php"><i class="bi bi-shield-check"></i> Admin</a>
-                    <a href="../php/auth/logout.php" style="color:#dc3545;"><i class="bi bi-box-arrow-right"></i> Logout</a>
-                </div>
-            </nav>
+          <!-- TOP NAVBAR -->
+<nav class="simple-nav">
+    <div class="logo">
+        <i class="bi bi-heart-pulse"></i> Doc<span>Book</span>
+    </div>
+    <div class="nav-links">
+        <a href="../index.html"><i class="bi bi-house"></i> Home</a>
+        <a href="admin-dashboard.php"><i class="bi bi-shield-check"></i> Admin</a>
+        <a href="patient-dashboard.php"><i class="bi bi-people"></i> Patient View</a>
+        <a href="doctor-dashboard.php"><i class="bi bi-person-badge"></i> Doctor View</a>
+        <a href="symptom-checker.php"><i class="bi bi-cpu"></i> AI Checker</a>
+        <a href="graphql-test.html"><i class="bi bi-braces"></i> GraphQL</a>
+        <a href="verify.php"><i class="bi bi-shield-check"></i> Verify</a>
+        <a href="../php/auth/logout.php" style="color:#dc3545;"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    </div>
+</nav>
+            <div class="sidebar-menu">
+                <a class="active" onclick="switchTab('overview')"><i class="bi bi-speedometer2"></i> Overview</a>
+                <a onclick="switchTab('appointments')"><i class="bi bi-calendar-check"></i> Appointments</a>
+                <a onclick="switchTab('doctors')"><i class="bi bi-person-badge"></i> Doctors</a>
+                <a onclick="switchTab('patients')"><i class="bi bi-people"></i> Patients</a>
+                <a onclick="switchTab('posts')"><i class="bi bi-newspaper"></i> Posts</a>
+                <a onclick="switchTab('reports')"><i class="bi bi-bar-chart-line"></i> Reports</a>
 
             <div class="sidebar-admin-info">
                 <p>Logged in as</p>
