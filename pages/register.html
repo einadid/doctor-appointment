@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | DocBook</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" 
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Flatpickr Datepicker -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body style="background:#f0f4f8; padding: 40px 20px;">
+
+<div class="form-container" id="register-box">
+    <h2><i class="bi bi-person-plus"></i> Create Account</h2>
+
+    <!-- Alert Box -->
+    <div id="alert-box"></div>
+
+    <form id="registerForm">
+
+        <!-- Role Select -->
+        <div class="form-group">
+            <label>Register As</label>
+            <select id="role" name="role" required>
+                <option value="">-- Select Role --</option>
+                <option value="patient">Patient</option>
+                <option value="doctor">Doctor</option>
+            </select>
+        </div>
+
+        <!-- Full Name -->
+        <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="full_name" name="full_name" 
+            placeholder="Enter your full name" required>
+        </div>
+
+        <!-- Username - Realtime Check -->
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="username" name="username" 
+            placeholder="Choose a username" required>
+            <span class="validation-msg" id="username-msg"></span>
+        </div>
+
+        <!-- Email - Validation -->
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="email" name="email" 
+            placeholder="Enter your email" required>
+            <span class="validation-msg" id="email-msg"></span>
+        </div>
+
+        <!-- Phone - Validation -->
+        <div class="form-group">
+            <label>Phone Number</label>
+            <input type="text" id="phone" name="phone" 
+            placeholder="01XXXXXXXXX" required>
+            <span class="validation-msg" id="phone-msg"></span>
+        </div>
+
+        <!-- Gender + DOB -->
+        <div class="form-row">
+            <div class="form-group">
+                <label>Gender</label>
+                <select id="gender" name="gender" required>
+                    <option value="">-- Select --</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Date of Birth</label>
+                <input type="text" id="dob" name="dob" 
+                placeholder="Select date" required readonly>
+            </div>
+        </div>
+
+        <!-- Doctor specific fields -->
+        <div id="doctor-fields" style="display:none;">
+
+            <div class="form-group">
+                <label>Specialty</label>
+                <select id="specialty_id" name="specialty_id">
+                    <option value="">-- Select Specialty --</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Qualification</label>
+                    <input type="text" id="qualification" 
+                    name="qualification" placeholder="MBBS, MD etc.">
+                </div>
+                <div class="form-group">
+                    <label>Experience (Years)</label>
+                    <input type="number" id="experience_years" 
+                    name="experience_years" placeholder="5" min="0">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Consultation Fee (BDT)</label>
+                <input type="number" id="consultation_fee" 
+                name="consultation_fee" placeholder="500" min="0">
+            </div>
+
+            <div class="form-group">
+                <label>Chamber Address</label>
+                <textarea id="chamber_address" name="chamber_address" 
+                rows="2" placeholder="Chamber address..."></textarea>
+            </div>
+
+        </div>
+
+        <!-- Password -->
+        <div class="form-row">
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" 
+                name="password" placeholder="Min 6 characters" required>
+                <span class="validation-msg" id="password-msg"></span>
+            </div>
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" id="confirm_password" 
+                name="confirm_password" placeholder="Repeat password" required>
+                <span class="validation-msg" id="confirm-msg"></span>
+            </div>
+        </div>
+
+        <!-- Profile Image Upload -->
+        <div class="form-group">
+            <label>Profile Image</label>
+            <input type="file" id="image" name="image" 
+            accept="image/*">
+            <img id="image-preview" src="" alt="" 
+            style="display:none; width:80px; height:80px; 
+            border-radius:50%; margin-top:10px; object-fit:cover;
+            border:3px solid #1a73e8;">
+        </div>
+
+        <button type="submit" class="btn-submit" id="submit-btn">
+            <span id="btn-text">Register</span>
+        </button>
+
+        <p style="text-align:center; margin-top:16px; font-size:14px;">
+            Already have an account? 
+            <a href="login.html" style="color:#1a73e8; font-weight:600;">
+            Login here</a>
+        </p>
+
+    </form>
+</div>
+
+<!-- Flatpickr Datepicker -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+// ================================
+// 1. DATEPICKER
+// ================================
+flatpickr("#dob", {
+    dateFormat: "Y-m-d",
+    maxDate: "today",
+    defaultDate: "2000-01-01"
+});
+
+// ================================
+// 2. GSAP Animation
+// ================================
+gsap.from("#register-box", {
+    duration: 0.8,
+    y: 50,
+    opacity: 0,
+    ease: "power3.out"
+});
+
+// ================================
+// 3. Role Change - Doctor Fields
+// ================================
+document.getElementById('role').addEventListener('change', function() {
+    const doctorFields = document.getElementById('doctor-fields');
+    if (this.value === 'doctor') {
+        doctorFields.style.display = 'block';
+        gsap.from("#doctor-fields", {
+            duration: 0.5,
+            y: -20,
+            opacity: 0,
+            ease: "power2.out"
+        });
+        loadSpecialties();
+    } else {
+        doctorFields.style.display = 'none';
+    }
+});
+
+// ================================
+// 4. Load Specialties from DB
+// ================================
+function loadSpecialties() {
+    fetch('../php/api/get_specialties.php')
+        .then(res => res.json())
+        .then(data => {
+            const select = document.getElementById('specialty_id');
+            select.innerHTML = '<option value="">-- Select Specialty --</option>';
+            if (data.status === 'success') {
+                data.data.forEach(s => {
+                    select.innerHTML += 
+                    `<option value="${s.id}">${s.name}</option>`;
+                });
+            }
+        })
+        .catch(err => console.log(err));
+}
+
+// ================================
+// 5. REALTIME USERNAME CHECK
+// ================================
+let usernameTimer;
+document.getElementById('username').addEventListener('input', function() {
+    const username = this.value.trim();
+    const msg = document.getElementById('username-msg');
+
+    clearTimeout(usernameTimer);
+
+    if (username.length < 3) {
+        msg.textContent = 'Username must be at least 3 characters';
+        msg.className = 'validation-msg invalid';
+        this.className = 'invalid';
+        return;
+    }
+
+    msg.textContent = 'Checking...';
+    msg.className = 'validation-msg';
+
+    usernameTimer = setTimeout(() => {
+        fetch(`../php/api/check_username.php?username=${username}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.available) {
+                    msg.textContent = '✅ Username available!';
+                    msg.className = 'validation-msg valid';
+                    document.getElementById('username').className = 'valid';
+                } else {
+                    msg.textContent = '❌ Username already taken!';
+                    msg.className = 'validation-msg invalid';
+                    document.getElementById('username').className = 'invalid';
+                }
+            });
+    }, 600);
+});
+
+// ================================
+// 6. EMAIL VALIDATION
+// ================================
+document.getElementById('email').addEventListener('input', function() {
+    const email = this.value.trim();
+    const msg = document.getElementById('email-msg');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (emailRegex.test(email)) {
+        msg.textContent = '✅ Valid email!';
+        msg.className = 'validation-msg valid';
+        this.className = 'valid';
+    } else {
+        msg.textContent = '❌ Invalid email format!';
+        msg.className = 'validation-msg invalid';
+        this.className = 'invalid';
+    }
+});
+
+// ================================
+// 7. PHONE VALIDATION
+// ================================
+document.getElementById('phone').addEventListener('input', function() {
+    const phone = this.value.trim();
+    const msg = document.getElementById('phone-msg');
+    const phoneRegex = /^01[3-9]\d{8}$/;
+
+    if (phoneRegex.test(phone)) {
+        msg.textContent = '✅ Valid phone number!';
+        msg.className = 'validation-msg valid';
+        this.className = 'valid';
+    } else {
+        msg.textContent = '❌ Must be valid BD number (01XXXXXXXXX)';
+        msg.className = 'validation-msg invalid';
+        this.className = 'invalid';
+    }
+});
+
+// ================================
+// 8. PASSWORD VALIDATION
+// ================================
+document.getElementById('password').addEventListener('input', function() {
+    const msg = document.getElementById('password-msg');
+    if (this.value.length >= 6) {
+        msg.textContent = '✅ Strong enough!';
+        msg.className = 'validation-msg valid';
+        this.className = 'valid';
+    } else {
+        msg.textContent = '❌ Minimum 6 characters!';
+        msg.className = 'validation-msg invalid';
+        this.className = 'invalid';
+    }
+});
+
+document.getElementById('confirm_password').addEventListener('input', function() {
+    const msg = document.getElementById('confirm-msg');
+    const pass = document.getElementById('password').value;
+    if (this.value === pass && pass !== '') {
+        msg.textContent = '✅ Passwords match!';
+        msg.className = 'validation-msg valid';
+        this.className = 'valid';
+    } else {
+        msg.textContent = '❌ Passwords do not match!';
+        msg.className = 'validation-msg invalid';
+        this.className = 'invalid';
+    }
+});
+
+// ================================
+// 9. IMAGE PREVIEW
+// ================================
+document.getElementById('image').addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('image-preview');
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            gsap.from("#image-preview", {
+                duration: 0.5,
+                scale: 0,
+                opacity: 0,
+                ease: "back.out(1.7)"
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// ================================
+// 10. FORM SUBMIT
+// ================================
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const btn = document.getElementById('submit-btn');
+    const btnText = document.getElementById('btn-text');
+    btnText.innerHTML = '<span class="spinner"></span> Registering...';
+    btn.disabled = true;
+
+    const formData = new FormData(this);
+
+    fetch('../php/auth/register.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        const alertBox = document.getElementById('alert-box');
+        if (data.status === 'success') {
+            alertBox.innerHTML = 
+            `<div class="alert success">
+                ✅ Registration successful! 
+                <a href="login.html">Login now</a>
+            </div>`;
+            this.reset();
+            document.getElementById('image-preview').style.display = 'none';
+        } else {
+            alertBox.innerHTML = 
+            `<div class="alert error">❌ ${data.message}</div>`;
+        }
+        btnText.textContent = 'Register';
+        btn.disabled = false;
+    })
+    .catch(err => {
+        console.log(err);
+        btnText.textContent = 'Register';
+        btn.disabled = false;
+    });
+});
+</script>
+
+</body>
+</html>

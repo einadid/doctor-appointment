@@ -1,0 +1,63 @@
+.navbar {
+    background: $white;
+    box-shadow: $shadow-sm;
+    padding: 14px $spacing-xl;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    @include flex-between;
+
+    .navbar-brand {
+        @include flex-center;
+        gap: 10px;
+
+        img {
+            width: 40px;
+            height: 40px;
+        }
+
+        h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: $doctor-blue;
+            
+            span {
+                color: $success;
+            }
+        }
+    }
+
+    .navbar-links {
+        display: flex;
+        gap: $spacing-lg;
+        align-items: center;
+
+        a {
+            font-size: 14px;
+            font-weight: 500;
+            color: $dark;
+
+            &:hover {
+                color: $doctor-blue;
+            }
+
+            &.active {
+                color: $doctor-blue;
+            }
+        }
+
+        .btn-login {
+            @include btn-style($doctor-blue);
+            padding: 8px 20px;
+        }
+
+        .btn-register {
+            @include btn-style($success);
+            padding: 8px 20px;
+        }
+
+        @include tablet {
+            display: none;
+        }
+    }
+}

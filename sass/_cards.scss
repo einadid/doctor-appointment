@@ -1,0 +1,99 @@
+// Doctor Card
+.doctor-card {
+    @include card;
+    text-align: center;
+    transition: $transition;
+
+    &:hover {
+        transform: translateY(-6px);
+        box-shadow: $shadow-md;
+    }
+
+    img {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid $doctor-blue;
+        margin-bottom: $spacing-md;
+    }
+
+    h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: $dark;
+        margin-bottom: 4px;
+    }
+
+    .specialty {
+        font-size: 13px;
+        color: $doctor-blue;
+        margin-bottom: $spacing-sm;
+    }
+
+    .rating {
+        color: $warning;
+        font-size: 14px;
+        margin-bottom: $spacing-sm;
+    }
+
+    .fee {
+        font-size: 14px;
+        color: $success;
+        font-weight: 600;
+    }
+
+    .btn-book {
+        @include btn-style($doctor-blue);
+        width: 100%;
+        margin-top: $spacing-md;
+    }
+}
+
+// Appointment Card
+.appointment-card {
+    @include card;
+    @include flex-between;
+    margin-bottom: $spacing-md;
+    transition: $transition;
+    border-left: 4px solid $doctor-blue;
+
+    &:hover {
+        box-shadow: $shadow-md;
+    }
+
+    .appt-info {
+        h4 {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        p {
+            font-size: 13px;
+            color: $secondary;
+        }
+    }
+
+    .appt-status {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+
+        &.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        &.approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        &.cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        &.completed {
+            background: $doctor-light;
+            color: $doctor-blue;
+        }
+    }
+}

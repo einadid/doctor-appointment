@@ -1,0 +1,104 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: $font-main;
+    background-color: $bg-light;
+    color: $dark;
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: $transition;
+}
+
+ul {
+    list-style: none;
+}
+
+img {
+    max-width: 100%;
+}
+
+input, select, textarea {
+    font-family: $font-main;
+    outline: none;
+    border: 1.5px solid #ddd;
+    border-radius: $radius-sm;
+    padding: 10px 14px;
+    font-size: 14px;
+    width: 100%;
+    transition: $transition;
+
+    &:focus {
+        border-color: $doctor-blue;
+        box-shadow: 0 0 0 3px rgba($doctor-blue, 0.15);
+    }
+}
+
+button {
+    font-family: $font-main;
+    cursor: pointer;
+}
+
+// Scrollbar
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: $light;
+}
+
+::-webkit-scrollbar-thumb {
+    background: $doctor-blue;
+    border-radius: 10px;
+}
+
+// Alert messages
+.alert {
+    padding: 12px 16px;
+    border-radius: $radius-sm;
+    margin-bottom: $spacing-md;
+    font-size: 14px;
+
+    &.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    &.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    &.warning {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+    }
+}
+
+// Loading spinner
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba($doctor-blue, 0.3);
+    border-top-color: $doctor-blue;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

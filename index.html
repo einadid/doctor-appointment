@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Appointment System</title>
+
+    <!-- SASS compiled CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" 
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="navbar-brand">
+        <i class="bi bi-hospital" style="font-size:32px; color:#1a73e8;"></i>
+        <h2>Doc<span>Book</span></h2>
+    </div>
+    <div class="navbar-links">
+        <a href="index.html" class="active">Home</a>
+        <a href="#doctors">Doctors</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+        <a href="pages/login.html" class="btn-login">Login</a>
+        <a href="pages/register.html" class="btn-register">Register</a>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+    <h1 id="hero-title">Book Your Doctor<br>Appointment Online</h1>
+    <p id="hero-sub">Find the best doctors, schedule appointments easily, and manage your health from anywhere.</p>
+    <div class="hero-btns">
+        <a href="pages/register.html" class="btn-primary">Get Started</a>
+        <a href="#doctors" class="btn-secondary">View Doctors</a>
+    </div>
+</section>
+
+<!-- GSAP Animation -->
+<script>
+gsap.from("#hero-title", {
+    duration: 1,
+    y: -60,
+    opacity: 0,
+    ease: "power3.out"
+});
+
+gsap.from("#hero-sub", {
+    duration: 1,
+    y: 40,
+    opacity: 0,
+    delay: 0.4,
+    ease: "power3.out"
+});
+
+gsap.from(".hero-btns", {
+    duration: 1,
+    y: 40,
+    opacity: 0,
+    delay: 0.7,
+    ease: "power3.out"
+});
+
+gsap.from(".navbar", {
+    duration: 0.8,
+    y: -80,
+    opacity: 0,
+    ease: "power3.out"
+});
+</script>
+
+</body>
+</html>

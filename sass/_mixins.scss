@@ -1,0 +1,53 @@
+// Flex center
+@mixin flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+// Flex between
+@mixin flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+// Responsive
+@mixin mobile {
+    @media (max-width: 576px) { @content; }
+}
+
+@mixin tablet {
+    @media (max-width: 768px) { @content; }
+}
+
+@mixin desktop {
+    @media (max-width: 1024px) { @content; }
+}
+
+// Button style
+@mixin btn-style($bg, $color: white) {
+    background: $bg;
+    color: $color;
+    border: none;
+    padding: 10px 24px;
+    border-radius: $radius-sm;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: $transition;
+
+    &:hover {
+        opacity: 0.88;
+        transform: translateY(-2px);
+        box-shadow: $shadow-sm;
+    }
+}
+
+// Card style
+@mixin card {
+    background: $white;
+    border-radius: $radius-md;
+    box-shadow: $shadow-sm;
+    padding: $spacing-lg;
+}

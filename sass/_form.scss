@@ -1,0 +1,63 @@
+.form-container {
+    @include card;
+    max-width: 500px;
+    margin: $spacing-xl auto;
+
+    h2 {
+        text-align: center;
+        font-size: 24px;
+        color: $doctor-blue;
+        margin-bottom: $spacing-lg;
+    }
+}
+
+.form-group {
+    margin-bottom: $spacing-md;
+
+    label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        color: $dark;
+        margin-bottom: 6px;
+    }
+
+    // Validation state
+    input.valid {
+        border-color: $success;
+    }
+
+    input.invalid {
+        border-color: $danger;
+    }
+
+    .validation-msg {
+        font-size: 12px;
+        margin-top: 4px;
+
+        &.valid {
+            color: $success;
+        }
+        &.invalid {
+            color: $danger;
+        }
+    }
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-md;
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+.btn-submit {
+    @include btn-style($doctor-blue);
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    margin-top: $spacing-sm;
+}
