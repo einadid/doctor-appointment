@@ -199,3 +199,25 @@ INSERT INTO specialties (name, description) VALUES
 ('Neurology', 'Brain and nerve specialist'),
 ('Orthopedics', 'Bone specialist'),
 ('Medicine', 'General physician');
+
+
+-- Admin user তৈরি করো
+INSERT INTO users (role, username, email, phone, password)
+VALUES (
+    'admin',
+    'admin',
+    'admin@docbook.com',
+    '01700000000',
+    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'
+);
+
+-- Password হলো: password
+
+-- Admin table এ insert করো
+INSERT INTO admins (user_id, admin_code, full_name)
+VALUES (
+    LAST_INSERT_ID(),
+    'ADM-001',
+    'System Admin'
+);
+

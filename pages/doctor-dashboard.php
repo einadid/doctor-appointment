@@ -19,40 +19,69 @@ mysqli_stmt_bind_param($stmt, "i", $user_id);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 $doctor = mysqli_fetch_assoc($result);
+
+// ✅ Doctor data না থাকলে default value দাও
+if (!$doctor) {
+    $doctor = [
+        'id' => 0,
+        'full_name' => $_SESSION['username'],
+        'specialty_name' => 'Not Set',
+        'email' => '',
+        'phone' => '',
+        'image' => null,
+        'qualification' => '',
+        'experience_years' => 0,
+        'consultation_fee' => 0,
+        'bio' => ''
+    ];
+}
+
 $doctor_id = $doctor['id'];
 
-// Appointments
+// ✅ doctor_id check করে তারপর query করো
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = 5;
 $offset = ($page - 1) * $limit;
 
-$total = mysqli_fetch_assoc(mysqli_query($conn,
-    "SELECT COUNT(*) as t FROM appointments 
-     WHERE doctor_id = $doctor_id"))['t'];
-$total_pages = ceil($total / $limit);
+if ($doctor_id > 0) {
+    $total_result = mysqli_fetch_assoc(mysqli_query($conn,
+        "SELECT COUNT(*) as t FROM appointments 
+         WHERE doctor_id = $doctor_id"));
+    $total = $total_result['t'] ?? 0;
 
-$appts = mysqli_query($conn,
-    "SELECT a.*, p.full_name as patient_name, 
-            p.gender, p.date_of_birth
-     FROM appointments a
-     JOIN patients p ON a.patient_id = p.id
-     WHERE a.doctor_id = $doctor_id
-     ORDER BY a.appointment_date DESC
-     LIMIT $limit OFFSET $offset");
+    $stats_result = mysqli_fetch_assoc(mysqli_query($conn,
+        "SELECT 
+            COUNT(*) as total,
+            SUM(status='pending') as pending,
+            SUM(status='completed') as completed,
+            SUM(status='approved') as approved
+         FROM appointments WHERE doctor_id = $doctor_id"));
+    $stats = $stats_result ?? ['total'=>0,'pending'=>0,'completed'=>0,'approved'=>0];
 
-// Stats
-$stats = mysqli_fetch_assoc(mysqli_query($conn,
-    "SELECT 
-        COUNT(*) as total,
-        SUM(status='pending') as pending,
-        SUM(status='completed') as completed,
-        SUM(status='approved') as approved
-     FROM appointments WHERE doctor_id = $doctor_id"));
+    $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
+        "SELECT AVG(rating) as avg_rating, COUNT(*) as total_ratings
+         FROM ratings WHERE doctor_id = $doctor_id"));
+    $rating_data = $rating_data ?? ['avg_rating'=>0,'total_ratings'=>0];
 
-// Average Rating
-$rating_data = mysqli_fetch_assoc(mysqli_query($conn,
-    "SELECT AVG(rating) as avg_rating, COUNT(*) as total_ratings
-     FROM ratings WHERE doctor_id = $doctor_id"));
+    $total_pages = ceil($total / $limit);
+
+    $appts = mysqli_query($conn,
+        "SELECT a.*, p.full_name as patient_name, 
+                p.gender, p.date_of_birth
+         FROM appointments a
+         JOIN patients p ON a.patient_id = p.id
+         WHERE a.doctor_id = $doctor_id
+         ORDER BY a.appointment_date DESC
+         LIMIT $limit OFFSET $offset");
+
+} else {
+    // ✅ Doctor profile setup না থাকলে empty data
+    $total = 0;
+    $total_pages = 0;
+    $stats = ['total'=>0,'pending'=>0,'completed'=>0,'approved'=>0];
+    $rating_data = ['avg_rating'=>0,'total_ratings'=>0];
+    $appts = null;
+}
 ?>
 
 <!DOCTYPE html>
@@ -70,7 +99,6 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
             min-height: 100vh;
         }
 
-        /* Sidebar */
         .sidebar {
             background: #0d47a1;
             color: white;
@@ -105,7 +133,6 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
         .sidebar .doctor-profile p {
             font-size: 12px;
             opacity: 0.8;
-            margin-top: 3px;
         }
 
         .sidebar-menu a {
@@ -130,14 +157,9 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
             margin-top: 20px;
         }
 
-        /* Main */
         .main-content {
             padding: 30px;
             background: #f0f4f8;
-        }
-
-        .page-header {
-            margin-bottom: 25px;
         }
 
         .page-header h2 {
@@ -151,12 +173,11 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
             color: #6c757d;
         }
 
-        /* Stats */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 16px;
-            margin-bottom: 25px;
+            margin: 20px 0;
         }
 
         .stat-card {
@@ -182,29 +203,13 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
         .stat-card .info h3 {
             font-size: 22px;
             font-weight: 700;
-            line-height: 1;
         }
 
         .stat-card .info p {
             font-size: 12px;
             color: #6c757d;
-            margin-top: 3px;
         }
 
-        /* Rating Stars */
-        .rating-display {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            margin-top: 5px;
-        }
-
-        .rating-display i {
-            color: #ffc107;
-            font-size: 16px;
-        }
-
-        /* Table */
         .table-card {
             background: white;
             border-radius: 12px;
@@ -213,14 +218,13 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
             margin-bottom: 25px;
         }
 
-        .table-card .card-title {
+        .card-title {
             font-size: 16px;
             font-weight: 600;
             margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #212529;
         }
 
         .appt-table {
@@ -243,10 +247,6 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
             vertical-align: middle;
         }
 
-        .appt-table tr:hover td {
-            background: #f8f9fa;
-        }
-
         .badge {
             padding: 4px 10px;
             border-radius: 20px;
@@ -254,27 +254,11 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
             font-weight: 600;
         }
 
-        .badge.pending {
-            background: #fff3cd;
-            color: #856404;
-        }
+        .badge.pending { background: #fff3cd; color: #856404; }
+        .badge.approved { background: #d4edda; color: #155724; }
+        .badge.completed { background: #cce5ff; color: #004085; }
+        .badge.cancelled { background: #f8d7da; color: #721c24; }
 
-        .badge.approved {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .badge.completed {
-            background: #cce5ff;
-            color: #004085;
-        }
-
-        .badge.cancelled {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        /* Action Buttons */
         .action-btn {
             padding: 5px 12px;
             border: none;
@@ -282,39 +266,16 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
             font-size: 12px;
             cursor: pointer;
             transition: all 0.3s;
+            margin: 2px;
         }
 
-        .btn-approve {
-            background: #d4edda;
-            color: #155724;
-        }
+        .btn-approve { background: #d4edda; color: #155724; }
+        .btn-approve:hover { background: #198754; color: white; }
+        .btn-complete { background: #cce5ff; color: #004085; }
+        .btn-complete:hover { background: #1a73e8; color: white; }
+        .btn-cancel { background: #f8d7da; color: #721c24; }
+        .btn-cancel:hover { background: #dc3545; color: white; }
 
-        .btn-approve:hover {
-            background: #198754;
-            color: white;
-        }
-
-        .btn-complete {
-            background: #cce5ff;
-            color: #004085;
-        }
-
-        .btn-complete:hover {
-            background: #1a73e8;
-            color: white;
-        }
-
-        .btn-cancel {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .btn-cancel:hover {
-            background: #dc3545;
-            color: white;
-        }
-
-        /* Pagination */
         .pagination {
             display: flex;
             gap: 8px;
@@ -338,7 +299,6 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
             color: white;
         }
 
-        /* Profile Edit */
         .profile-card {
             background: white;
             border-radius: 12px;
@@ -347,38 +307,25 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
             margin-bottom: 25px;
         }
 
-        .profile-card h3 {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: #212529;
-        }
-
-        /* Schedule */
-        .schedule-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-top: 15px;
-        }
-
-        .schedule-item {
-            background: #f0f4f8;
-            border-radius: 10px;
-            padding: 14px;
+        /* ✅ Doctor profile not set warning */
+        .setup-warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
             text-align: center;
         }
 
-        .schedule-item h4 {
-            font-size: 13px;
-            font-weight: 600;
-            color: #1a73e8;
-            margin-bottom: 5px;
+        .setup-warning h3 {
+            color: #856404;
+            font-size: 16px;
+            margin-bottom: 8px;
         }
 
-        .schedule-item p {
-            font-size: 12px;
-            color: #6c757d;
+        .setup-warning p {
+            color: #856404;
+            font-size: 13px;
         }
     </style>
 </head>
@@ -395,19 +342,6 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
                 alt="Doctor">
             <h4>Dr. <?= htmlspecialchars($doctor['full_name']) ?></h4>
             <p><?= htmlspecialchars($doctor['specialty_name']) ?></p>
-            <div class="rating-display" style="justify-content:center;">
-                <?php
-                $avg = round($rating_data['avg_rating'] ?? 0);
-                for($i=1; $i<=5; $i++) {
-                    echo $i <= $avg
-                        ? '<i class="bi bi-star-fill"></i>'
-                        : '<i class="bi bi-star"></i>';
-                }
-                ?>
-                <small style="color:white; opacity:0.8;">
-                    (<?= $rating_data['total_ratings'] ?? 0 ?>)
-                </small>
-            </div>
         </div>
 
         <nav class="sidebar-menu">
@@ -416,9 +350,6 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
             </a>
             <a href="#appointments">
                 <i class="bi bi-calendar-check"></i> Appointments
-            </a>
-            <a href="#schedule">
-                <i class="bi bi-clock"></i> My Schedule
             </a>
             <a href="#profile">
                 <i class="bi bi-person"></i> Profile
@@ -432,15 +363,25 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
     <!-- MAIN CONTENT -->
     <main class="main-content">
 
-        <!-- Header -->
-        <div class="page-header">
+        <div class="page-header" style="margin-bottom:20px;">
             <h2>Dr. <?= htmlspecialchars($doctor['full_name']) ?>'s Dashboard</h2>
             <p><?= date('l, d F Y') ?></p>
         </div>
 
+        <?php if($doctor_id == 0): ?>
+        <!-- ✅ Profile Setup Warning -->
+        <div class="setup-warning">
+            <h3>⚠️ Doctor Profile Not Complete!</h3>
+            <p>
+                Your doctor profile is not set up yet.<br>
+                Please fill in the profile form below and save.
+            </p>
+        </div>
+        <?php endif; ?>
+
         <!-- Stats -->
         <div class="stats-grid">
-            <div class="stat-card" id="stat1">
+            <div class="stat-card">
                 <div class="icon" style="background:#e8f0fe;">
                     <i class="bi bi-calendar-check" style="color:#1a73e8;"></i>
                 </div>
@@ -449,7 +390,7 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
                     <p>Total Appointments</p>
                 </div>
             </div>
-            <div class="stat-card" id="stat2">
+            <div class="stat-card">
                 <div class="icon" style="background:#fff3cd;">
                     <i class="bi bi-clock" style="color:#ffc107;"></i>
                 </div>
@@ -458,7 +399,7 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
                     <p>Pending</p>
                 </div>
             </div>
-            <div class="stat-card" id="stat3">
+            <div class="stat-card">
                 <div class="icon" style="background:#d4edda;">
                     <i class="bi bi-check-circle" style="color:#198754;"></i>
                 </div>
@@ -467,13 +408,13 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
                     <p>Completed</p>
                 </div>
             </div>
-            <div class="stat-card" id="stat4">
-                <div class="icon" style="background:#f8d7da;">
+            <div class="stat-card">
+                <div class="icon" style="background:#ffeaa7;">
                     <i class="bi bi-star-fill" style="color:#ffc107;"></i>
                 </div>
                 <div class="info">
                     <h3><?= number_format($rating_data['avg_rating'] ?? 0, 1) ?></h3>
-                    <p>Average Rating</p>
+                    <p>Avg Rating</p>
                 </div>
             </div>
         </div>
@@ -485,6 +426,11 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
                 Appointment Requests
             </div>
 
+            <?php if($doctor_id == 0): ?>
+                <p style="color:#6c757d; text-align:center; padding:20px;">
+                    Complete your profile first to see appointments.
+                </p>
+            <?php else: ?>
             <table class="appt-table">
                 <thead>
                     <tr>
@@ -500,23 +446,19 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
                 <tbody>
                 <?php
                 $sl = $offset + 1;
-                while($appt = mysqli_fetch_assoc($appts)):
+                if($appts && mysqli_num_rows($appts) > 0):
+                    while($appt = mysqli_fetch_assoc($appts)):
                 ?>
                     <tr id="appt-row-<?= $appt['id'] ?>">
                         <td><?= $sl++ ?></td>
                         <td>
-                            <strong>
-                                <?= htmlspecialchars($appt['patient_name']) ?>
-                            </strong><br>
-                            <small style="color:#6c757d;">
-                                <?= $appt['gender'] ?>
-                            </small>
+                            <strong><?= htmlspecialchars($appt['patient_name']) ?></strong>
+                            <br>
+                            <small style="color:#6c757d;"><?= $appt['gender'] ?></small>
                         </td>
                         <td><?= date('d M Y', strtotime($appt['appointment_date'])) ?></td>
                         <td><?= date('h:i A', strtotime($appt['appointment_time'])) ?></td>
-                        <td>
-                            <?= htmlspecialchars(substr($appt['reason'] ?? 'N/A', 0, 30)) ?>
-                        </td>
+                        <td><?= htmlspecialchars(substr($appt['reason'] ?? 'N/A', 0, 30)) ?></td>
                         <td>
                             <span class="badge <?= $appt['status'] ?>"
                                   id="status-<?= $appt['id'] ?>">
@@ -526,37 +468,45 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
                         <td>
                             <?php if($appt['status'] == 'pending'): ?>
                             <button class="action-btn btn-approve"
-                                    onclick="updateStatus(<?= $appt['id'] ?>, 'approved')">
+                                onclick="updateStatus(<?= $appt['id'] ?>, 'approved')">
                                 Approve
                             </button>
                             <?php endif; ?>
 
                             <?php if($appt['status'] == 'approved'): ?>
                             <button class="action-btn btn-complete"
-                                    onclick="updateStatus(<?= $appt['id'] ?>, 'completed')">
+                                onclick="updateStatus(<?= $appt['id'] ?>, 'completed')">
                                 Complete
                             </button>
                             <?php endif; ?>
 
                             <?php if(in_array($appt['status'], ['pending','approved'])): ?>
                             <button class="action-btn btn-cancel"
-                                    onclick="updateStatus(<?= $appt['id'] ?>, 'cancelled')">
+                                onclick="updateStatus(<?= $appt['id'] ?>, 'cancelled')">
                                 Cancel
                             </button>
                             <?php endif; ?>
 
                             <?php if($appt['status'] == 'completed'): ?>
-                            <span style="color:#198754; font-size:12px;">
-                                ✓ Done
-                            </span>
+                            <span style="color:#198754; font-size:12px;">✓ Done</span>
                             <?php endif; ?>
                         </td>
                     </tr>
-                <?php endwhile; ?>
+                <?php
+                    endwhile;
+                else:
+                ?>
+                    <tr>
+                        <td colspan="7" style="text-align:center; color:#6c757d; padding:20px;">
+                            No appointments yet.
+                        </td>
+                    </tr>
+                <?php endif; ?>
                 </tbody>
             </table>
 
-            <!-- Pagination (Feature #8) -->
+            <!-- Pagination -->
+            <?php if($total_pages > 1): ?>
             <div class="pagination">
                 <?php for($i=1; $i<=$total_pages; $i++): ?>
                 <a href="?page=<?= $i ?>"
@@ -565,22 +515,16 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
                 </a>
                 <?php endfor; ?>
             </div>
-        </div>
+            <?php endif; ?>
 
-        <!-- Schedule Section -->
-        <div class="table-card" id="schedule">
-            <div class="card-title">
-                <i class="bi bi-clock" style="color:#1a73e8;"></i>
-                My Weekly Schedule
-            </div>
-            <div class="schedule-grid" id="scheduleGrid">
-                <!-- Load via AJAX -->
-            </div>
+            <?php endif; ?>
         </div>
 
         <!-- Profile Edit -->
         <div class="profile-card" id="profile">
-            <h3><i class="bi bi-person"></i> Update Profile</h3>
+            <h3 style="font-size:16px; font-weight:600; margin-bottom:20px;">
+                <i class="bi bi-person"></i> Update Profile
+            </h3>
             <form action="../php/doctor/update-profile.php"
                   method="POST"
                   enctype="multipart/form-data">
@@ -611,9 +555,9 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
                 <div class="form-group" style="margin-top:10px;">
                     <label>Bio</label>
                     <textarea name="bio" rows="3"
-                              style="width:100%; padding:10px; border-radius:8px;
-                                     border:1.5px solid #ddd; font-family:inherit;">
-                        <?= htmlspecialchars($doctor['bio'] ?? '') ?>
+                        style="width:100%; padding:10px; border-radius:8px;
+                               border:1.5px solid #ddd; font-family:inherit;">
+<?= htmlspecialchars($doctor['bio'] ?? '') ?>
                     </textarea>
                 </div>
 
@@ -623,10 +567,10 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
                 </div>
 
                 <button type="submit"
-                        style="background:#1a73e8; color:white; border:none;
-                               padding:10px 25px; border-radius:8px;
-                               cursor:pointer; margin-top:10px; font-size:14px;">
-                    Update Profile
+                    style="background:#1a73e8; color:white; border:none;
+                           padding:10px 25px; border-radius:8px;
+                           cursor:pointer; margin-top:10px; font-size:14px;">
+                    Save Profile
                 </button>
             </form>
         </div>
@@ -636,8 +580,7 @@ $rating_data = mysqli_fetch_assoc(mysqli_query($conn,
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script>
-// GSAP Animations
-gsap.from("#stat1, #stat2, #stat3, #stat4", {
+gsap.from(".stat-card", {
     duration: 0.6,
     y: 30,
     opacity: 0,
@@ -654,9 +597,6 @@ gsap.from(".table-card", {
     ease: "power3.out"
 });
 
-// ================================
-// Update Appointment Status (AJAX)
-// ================================
 function updateStatus(apptId, status) {
     if(!confirm(`Are you sure to mark as ${status}?`)) return;
 
@@ -671,35 +611,12 @@ function updateStatus(apptId, status) {
             let badge = document.getElementById(`status-${apptId}`);
             badge.className = `badge ${status}`;
             badge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
-
-            // Reload page to refresh buttons
             setTimeout(() => location.reload(), 800);
         } else {
             alert('Update failed!');
         }
     });
 }
-
-// ================================
-// Load Schedule
-// ================================
-fetch('../php/doctor/get-schedule.php')
-    .then(res => res.json())
-    .then(data => {
-        let grid = document.getElementById('scheduleGrid');
-        if(data.length === 0) {
-            grid.innerHTML = '<p style="color:#6c757d;">No schedule set.</p>';
-            return;
-        }
-        data.forEach(s => {
-            grid.innerHTML += `
-                <div class="schedule-item">
-                    <h4>${s.day_of_week}</h4>
-                    <p>${s.start_time} - ${s.end_time}</p>
-                    <small>Max: ${s.max_patients} patients</small>
-                </div>`;
-        });
-    });
 </script>
 
 </body>

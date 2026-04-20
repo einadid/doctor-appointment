@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GraphQL Test - DocBook</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .graphql-wrapper {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .graphql-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .graphql-card h2 {
+            color: #e535ab;
+            font-size: 22px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .query-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .query-box textarea {
+            width: 100%;
+            height: 250px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            resize: vertical;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+
+        .result-box {
+            background: #1e1e1e;
+            border-radius: 10px;
+            padding: 15px;
+            height: 250px;
+            overflow-y: auto;
+            color: #4ec9b0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+
+        .btn-run {
+            background: #e535ab;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-run:hover {
+            background: #c0208a;
+            transform: translateY(-2px);
+        }
+
+        .sample-queries {
+            margin-top: 20px;
+        }
+
+        .sample-queries h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #6c757d;
+        }
+
+        .query-chip {
+            display: inline-block;
+            padding: 6px 14px;
+            background: #f0f4f8;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            margin: 4px;
+            transition: all 0.3s;
+            border: 1px solid #ddd;
+        }
+
+        .query-chip:hover {
+            background: #e535ab;
+            color: white;
+            border-color: #e535ab;
+        }
+    </style>
+</head>
+<body>
+
+<div class="graphql-wrapper">
+    <div class="graphql-card">
+        <h2>
+            <span style="color:#e535ab;">◈</span>
+            GraphQL Playground - DocBook API
+        </h2>
+
+        <div class="query-area">
+            <div class="query-box">
+                <label style="font-size:13px; font-weight:600;
+                              display:block; margin-bottom:8px;">
+                    Query Editor
+                </label>
+                <textarea id="queryInput">{
+  doctors {
+    id
+    full_name
+    specialty
+    consultation_fee
+    experience_years
+  }
+}</textarea>
+            </div>
+            <div>
+                <label style="font-size:13px; font-weight:600;
+                              display:block; margin-bottom:8px;">
+                    Response
+                </label>
+                <div class="result-box" id="resultBox">
+// Response will appear here...
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-run" onclick="runQuery()">
+            ▶ Run Query
+        </button>
+
+        <!-- Sample Queries -->
+        <div class="sample-queries">
+            <h4>📋 Sample Queries:</h4>
+
+            <span class="query-chip"
+                  onclick="loadQuery('all-doctors')">
+                All Doctors
+            </span>
+            <span class="query-chip"
+                  onclick="loadQuery('single-doctor')">
+                Single Doctor
+            </span>
+            <span class="query-chip"
+                  onclick="loadQuery('appointments')">
+                Appointments
+            </span>
+            <span class="query-chip"
+                  onclick="loadQuery('pending')">
+                Pending Appointments
+            </span>
+        </div>
+    </div>
+</div>
+
+<script>
+const queries = {
+    'all-doctors': `{
+  doctors {
+    id
+    full_name
+    specialty
+    consultation_fee
+    experience_years
+  }
+}`,
+    'single-doctor': `{
+  doctor(id: 1) {
+    id
+    full_name
+    specialty
+    consultation_fee
+    bio
+  }
+}`,
+    'appointments': `{
+  appointments {
+    id
+    appointment_no
+    patient_name
+    doctor_name
+    appointment_date
+    status
+  }
+}`,
+    'pending': `{
+  appointments(status: "pending") {
+    id
+    appointment_no
+    patient_name
+    doctor_name
+    appointment_date
+    appointment_time
+  }
+}`
+};
+
+function loadQuery(key) {
+    document.getElementById('queryInput').value = queries[key];
+}
+
+function runQuery() {
+    let query = document.getElementById('queryInput').value;
+    let resultBox = document.getElementById('resultBox');
+    resultBox.textContent = '// Loading...';
+
+    fetch('../php/api/graphql.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: query })
+    })
+    .then(res => res.json())
+    .then(data => {
+        resultBox.textContent = JSON.stringify(data, null, 2);
+    })
+    .catch(err => {
+        resultBox.textContent = '// Error: ' + err.message;
+    });
+}
+</script>
+
+</body>
+</html>

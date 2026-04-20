@@ -35,14 +35,15 @@ $posts_result = mysqli_query($conn, $posts_sql);
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Patient Dashboard - DocBook</title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" 
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" 
-    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         .dashboard-wrapper {
             display: grid;
@@ -98,7 +99,7 @@ $posts_result = mysqli_query($conn, $posts_sql);
 
         .sidebar-menu a:hover,
         .sidebar-menu a.active {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .sidebar-menu a.logout {
@@ -136,7 +137,7 @@ $posts_result = mysqli_query($conn, $posts_sql);
             display: flex;
             align-items: center;
             gap: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .stat-card .icon {
@@ -165,7 +166,7 @@ $posts_result = mysqli_query($conn, $posts_sql);
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
 
         .post-header {
@@ -335,7 +336,7 @@ $posts_result = mysqli_query($conn, $posts_sql);
             background: white;
             color: #1a73e8;
             font-size: 14px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             transition: all 0.3s;
         }
 
@@ -382,284 +383,335 @@ $posts_result = mysqli_query($conn, $posts_sql);
         }
     </style>
 </head>
+
 <body>
 
-<div class="dashboard-wrapper">
+    <div class="dashboard-wrapper">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div class="user-info">
-            <img src="<?= $patient['image'] ? '../uploads/'.$patient['image'] : 'https://ui-avatars.com/api/?name='.urlencode($patient['full_name']).'&background=1a73e8&color=fff' ?>" alt="Profile">
-            <h4><?= htmlspecialchars($patient['full_name']) ?></h4>
-            <p><?= htmlspecialchars($patient['patient_code']) ?></p>
-        </div>
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="user-info">
+                <img src="<?= $patient['image'] ? '../uploads/' . $patient['image'] : 'https://ui-avatars.com/api/?name=' . urlencode($patient['full_name']) . '&background=1a73e8&color=fff' ?>" alt="Profile">
+                <h4><?= htmlspecialchars($patient['full_name']) ?></h4>
+                <p><?= htmlspecialchars($patient['patient_code']) ?></p>
+            </div>
 
-        <nav class="sidebar-menu">
-            <a href="#" class="active"><i class="bi bi-grid"></i> Dashboard</a>
-            <a href="#appointments"><i class="bi bi-calendar-check"></i> Appointments</a>
-            <a href="#doctors"><i class="bi bi-person-badge"></i> Doctors</a>
-            <a href="#posts"><i class="bi bi-newspaper"></i> Posts</a>
-            <a href="#profile"><i class="bi bi-person"></i> Profile</a>
-            <a href="../php/auth/logout.php" class="logout">
-                <i class="bi bi-box-arrow-right"></i> Logout
-            </a>
-        </nav>
-    </aside>
+            <nav class="sidebar-menu">
+                <a href="#" class="active"><i class="bi bi-grid"></i> Dashboard</a>
+                <a href="#appointments"><i class="bi bi-calendar-check"></i> Appointments</a>
+                <a href="#doctors"><i class="bi bi-person-badge"></i> Doctors</a>
+                <a href="#posts"><i class="bi bi-newspaper"></i> Posts</a>
+                <a href="#profile"><i class="bi bi-person"></i> Profile</a>
+                <a href="../php/auth/logout.php" class="logout">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </nav>
+        </aside>
 
-    <!-- MAIN CONTENT -->
-    <main class="main-content">
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
 
-        <!-- Header -->
-        <div class="dashboard-header">
-            <h2>👋 Welcome, <?= htmlspecialchars($patient['full_name']) ?>!</h2>
-            <p style="color:#6c757d; font-size:14px;">
-                <?= date('l, d F Y') ?>
-            </p>
-        </div>
+            <!-- Header -->
+            <div class="dashboard-header">
+                <h2>👋 Welcome, <?= htmlspecialchars($patient['full_name']) ?>!</h2>
+                <p style="color:#6c757d; font-size:14px;">
+                    <?= date('l, d F Y') ?>
+                </p>
+            </div>
 
-        <!-- Stats Cards -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="icon" style="background:#e8f0fe;">
-                    <i class="bi bi-calendar-check" style="color:#1a73e8;"></i>
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="icon" style="background:#e8f0fe;">
+                        <i class="bi bi-calendar-check" style="color:#1a73e8;"></i>
+                    </div>
+                    <div class="info">
+                        <h3 id="total-appointments">0</h3>
+                        <p>Total Appointments</p>
+                    </div>
                 </div>
-                <div class="info">
-                    <h3 id="total-appointments">0</h3>
-                    <p>Total Appointments</p>
+                <div class="stat-card">
+                    <div class="icon" style="background:#d4edda;">
+                        <i class="bi bi-check-circle" style="color:#198754;"></i>
+                    </div>
+                    <div class="info">
+                        <h3 id="completed-appointments">0</h3>
+                        <p>Completed</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon" style="background:#fff3cd;">
+                        <i class="bi bi-clock" style="color:#ffc107;"></i>
+                    </div>
+                    <div class="info">
+                        <h3 id="pending-appointments">0</h3>
+                        <p>Pending</p>
+                    </div>
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="icon" style="background:#d4edda;">
-                    <i class="bi bi-check-circle" style="color:#198754;"></i>
-                </div>
-                <div class="info">
-                    <h3 id="completed-appointments">0</h3>
-                    <p>Completed</p>
-                </div>
+
+            <!-- Image Upload Section (Feature #13) -->
+            <div id="profile" style="margin-bottom:30px;">
+                <p class="section-title">
+                    <i class="bi bi-cloud-upload"></i> Upload Profile Image
+                </p>
+                <form action="../php/upload.php" method="POST"
+                    enctype="multipart/form-data" id="uploadForm">
+                    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                        <i class="bi bi-cloud-upload"></i>
+                        <p>Click to upload image</p>
+                        <small id="file-name" style="color:#1a73e8;"></small>
+                    </div>
+                    <input type="file" id="fileInput" name="image"
+                        accept="image/*" style="display:none;"
+                        onchange="showFileName(this)">
+                    <button type="submit" class="btn-submit" style="max-width:200px;">
+                        Upload
+                    </button>
+                </form>
             </div>
-            <div class="stat-card">
-                <div class="icon" style="background:#fff3cd;">
-                    <i class="bi bi-clock" style="color:#ffc107;"></i>
-                </div>
-                <div class="info">
-                    <h3 id="pending-appointments">0</h3>
-                    <p>Pending</p>
-                </div>
-            </div>
-        </div>
 
-        <!-- Image Upload Section (Feature #13) -->
-        <div id="profile" style="margin-bottom:30px;">
-            <p class="section-title">
-                <i class="bi bi-cloud-upload"></i> Upload Profile Image
-            </p>
-            <form action="../php/upload.php" method="POST" 
-                  enctype="multipart/form-data" id="uploadForm">
-                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                    <i class="bi bi-cloud-upload"></i>
-                    <p>Click to upload image</p>
-                    <small id="file-name" style="color:#1a73e8;"></small>
-                </div>
-                <input type="file" id="fileInput" name="image" 
-                       accept="image/*" style="display:none;" 
-                       onchange="showFileName(this)">
-                <button type="submit" class="btn-submit" style="max-width:200px;">
-                    Upload
-                </button>
-            </form>
-        </div>
+            <!-- Posts Section -->
+            <div id="posts">
+                <p class="section-title">
+                    <i class="bi bi-newspaper"></i> Health Posts
+                </p>
 
-        <!-- Posts Section -->
-        <div id="posts">
-            <p class="section-title">
-                <i class="bi bi-newspaper"></i> Health Posts
-            </p>
+                <?php while ($post = mysqli_fetch_assoc($posts_result)): ?>
+                    <div class="post-card" id="post-<?= $post['id'] ?>">
 
-            <?php while($post = mysqli_fetch_assoc($posts_result)): ?>
-            <div class="post-card" id="post-<?= $post['id'] ?>">
-                
-                <!-- Post Header -->
-                <div class="post-header">
-                    <img src="https://ui-avatars.com/api/?name=<?= urlencode($post['username']) ?>&background=1a73e8&color=fff" alt="">
-                    <div class="post-meta">
-                        <h4><?= htmlspecialchars($post['username']) ?></h4>
-                        <p><?= date('d M Y, h:i A', strtotime($post['created_at'])) ?></p>
+                        <!-- Post Header -->
+                        <div class="post-header">
+                            <img src="https://ui-avatars.com/api/?name=<?= urlencode($post['username']) ?>&background=1a73e8&color=fff" alt="">
+                            <div class="post-meta">
+                                <h4><?= htmlspecialchars($post['username']) ?></h4>
+                                <p><?= date('d M Y, h:i A', strtotime($post['created_at'])) ?></p>
+                            </div>
+                        </div>
+
+                        <!-- Post Content -->
+                        <div class="post-content">
+                            <strong><?= htmlspecialchars($post['title']) ?></strong>
+                            <p><?= nl2br(htmlspecialchars($post['content'])) ?></p>
+
+                            <!-- YouTube Video (Feature #9) -->
+                            <?php if ($post['media_type'] == 'youtube' && $post['media_url']): ?>
+                                <div style="margin-top:10px;">
+                                    <iframe width="100%" height="300"
+                                        src="https://www.youtube.com/embed/<?= htmlspecialchars($post['media_url']) ?>"
+                                        frameborder="0" allowfullscreen></iframe>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Image Media -->
+                            <?php if ($post['media_type'] == 'image' && $post['media_url']): ?>
+                                <img src="../uploads/<?= htmlspecialchars($post['media_url']) ?>"
+                                    style="width:100%; border-radius:8px; margin-top:10px;">
+                            <?php endif; ?>
+                        </div>
+
+                        <!-- Like/Dislike (Feature #3) -->
+                        <div class="post-actions">
+                            <button onclick="reactPost(<?= $post['id'] ?>, 'like')"
+                                id="like-btn-<?= $post['id'] ?>">
+                                <i class="bi bi-hand-thumbs-up"></i>
+                                <span id="like-count-<?= $post['id'] ?>">0</span>
+                            </button>
+                            <button onclick="reactPost(<?= $post['id'] ?>, 'dislike')"
+                                id="dislike-btn-<?= $post['id'] ?>">
+                                <i class="bi bi-hand-thumbs-down"></i>
+                                <span id="dislike-count-<?= $post['id'] ?>">0</span>
+                            </button>
+                            <button onclick="toggleComments(<?= $post['id'] ?>)">
+                                <i class="bi bi-chat"></i> Comment
+                            </button>
+                        </div>
+
+                        <!-- Rating (Feature #7) -->
+                        <div style="margin-bottom:10px;">
+                            <small style="color:#6c757d;">Rate this post:</small>
+                            <div class="rating-stars" id="rating-<?= $post['id'] ?>">
+                                <?php for ($i = 1; $i <= 5; $i++): ?>
+                                    <i class="bi bi-star-fill"
+                                        onclick="ratePost(<?= $post['id'] ?>, <?= $i ?>)"
+                                        data-value="<?= $i ?>"></i>
+                                <?php endfor; ?>
+                            </div>
+                        </div>
+
+                        <!-- Comments Section (Feature #2) -->
+                        <div class="comments-section" id="comments-<?= $post['id'] ?>" style="display:none;">
+                            <div id="comment-list-<?= $post['id'] ?>">
+                                <!-- Comments will load here via AJAX -->
+                            </div>
+                            <div class="comment-input-area">
+                                <input type="text"
+                                    id="comment-input-<?= $post['id'] ?>"
+                                    placeholder="Write a comment...">
+                                <button onclick="submitComment(<?= $post['id'] ?>)">
+                                    Send
+                                </button>
+                            </div>
+                        </div>
+
                     </div>
+                <?php endwhile; ?>
+
+                <!-- Pagination (Feature #8) -->
+                <div class="pagination">
+                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                        <a href="?page=<?= $i ?>"
+                            class="<?= $page == $i ? 'active' : '' ?>">
+                            <?= $i ?>
+                        </a>
+                    <?php endfor; ?>
                 </div>
+                <!-- Create Post Section -->
+                <div style="background:white; border-radius:12px;
+            padding:20px; margin-bottom:20px;
+            box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                    <h4 style="font-size:15px; font-weight:600; margin-bottom:15px;">
+                        ✍️ Create a Post
+                    </h4>
 
-                <!-- Post Content -->
-                <div class="post-content">
-                    <strong><?= htmlspecialchars($post['title']) ?></strong>
-                    <p><?= nl2br(htmlspecialchars($post['content'])) ?></p>
-
-                    <!-- YouTube Video (Feature #9) -->
-                    <?php if($post['media_type'] == 'youtube' && $post['media_url']): ?>
-                    <div style="margin-top:10px;">
-                        <iframe width="100%" height="300" 
-                                src="https://www.youtube.com/embed/<?= htmlspecialchars($post['media_url']) ?>" 
-                                frameborder="0" allowfullscreen></iframe>
+                    <div class="form-group">
+                        <input type="text" id="postTitle"
+                            placeholder="Post title...">
                     </div>
-                    <?php endif; ?>
 
-                    <!-- Image Media -->
-                    <?php if($post['media_type'] == 'image' && $post['media_url']): ?>
-                    <img src="../uploads/<?= htmlspecialchars($post['media_url']) ?>" 
-                         style="width:100%; border-radius:8px; margin-top:10px;">
-                    <?php endif; ?>
-                </div>
-
-                <!-- Like/Dislike (Feature #3) -->
-                <div class="post-actions">
-                    <button onclick="reactPost(<?= $post['id'] ?>, 'like')" 
-                            id="like-btn-<?= $post['id'] ?>">
-                        <i class="bi bi-hand-thumbs-up"></i>
-                        <span id="like-count-<?= $post['id'] ?>">0</span>
-                    </button>
-                    <button onclick="reactPost(<?= $post['id'] ?>, 'dislike')" 
-                            id="dislike-btn-<?= $post['id'] ?>">
-                        <i class="bi bi-hand-thumbs-down"></i>
-                        <span id="dislike-count-<?= $post['id'] ?>">0</span>
-                    </button>
-                    <button onclick="toggleComments(<?= $post['id'] ?>)">
-                        <i class="bi bi-chat"></i> Comment
-                    </button>
-                </div>
-
-                <!-- Rating (Feature #7) -->
-                <div style="margin-bottom:10px;">
-                    <small style="color:#6c757d;">Rate this post:</small>
-                    <div class="rating-stars" id="rating-<?= $post['id'] ?>">
-                        <?php for($i=1; $i<=5; $i++): ?>
-                        <i class="bi bi-star-fill" 
-                           onclick="ratePost(<?= $post['id'] ?>, <?= $i ?>)" 
-                           data-value="<?= $i ?>"></i>
-                        <?php endfor; ?>
+                    <div class="form-group" style="margin-top:10px;">
+                        <textarea id="postContent" rows="3"
+                            placeholder="Share health tips, experiences..."
+                            style="width:100%; padding:10px; border-radius:8px;
+                   border:1.5px solid #ddd; font-family:inherit;
+                   resize:vertical;"></textarea>
                     </div>
-                </div>
 
-                <!-- Comments Section (Feature #2) -->
-                <div class="comments-section" id="comments-<?= $post['id'] ?>" style="display:none;">
-                    <div id="comment-list-<?= $post['id'] ?>">
-                        <!-- Comments will load here via AJAX -->
-                    </div>
-                    <div class="comment-input-area">
-                        <input type="text" 
-                               id="comment-input-<?= $post['id'] ?>" 
-                               placeholder="Write a comment...">
-                        <button onclick="submitComment(<?= $post['id'] ?>)">
-                            Send
+                    <!-- Media Type (Feature #6: Multiple dropdowns) -->
+                    <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+                        <select id="mediaType" onchange="toggleMediaInput()"
+                            style="padding:8px 12px; border-radius:8px;
+                       border:1.5px solid #ddd; font-size:13px;">
+                            <option value="none">No Media</option>
+                            <option value="youtube">YouTube Video</option>
+                            <option value="image">Image URL</option>
+                        </select>
+
+                        <input type="text" id="mediaUrl"
+                            placeholder="Paste YouTube video ID or Image URL"
+                            style="flex:1; display:none; padding:8px 12px;
+                      border-radius:8px; border:1.5px solid #ddd;
+                      font-size:13px;">
+
+                        <button onclick="createPost()"
+                            style="background:#1a73e8; color:white; border:none;
+                   padding:8px 20px; border-radius:8px;
+                   font-size:13px; cursor:pointer;">
+                            <i class="bi bi-send"></i> Post
                         </button>
                     </div>
                 </div>
 
             </div>
-            <?php endwhile; ?>
 
-            <!-- Pagination (Feature #8) -->
-            <div class="pagination">
-                <?php for($i=1; $i<=$total_pages; $i++): ?>
-                <a href="?page=<?= $i ?>" 
-                   class="<?= $page == $i ? 'active' : '' ?>">
-                    <?= $i ?>
-                </a>
-                <?php endfor; ?>
-            </div>
+        </main>
+    </div>
 
-        </div>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
-    </main>
-</div>
-
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-
-<script>
-// ================================
-// GSAP Animations
-// ================================
-gsap.from(".stat-card", {
-    duration: 0.6,
-    y: 30,
-    opacity: 0,
-    stagger: 0.15,
-    ease: "power3.out"
-});
-
-gsap.from(".post-card", {
-    duration: 0.5,
-    y: 20,
-    opacity: 0,
-    stagger: 0.1,
-    delay: 0.3,
-    ease: "power3.out"
-});
-
-// ================================
-// Load Appointment Stats
-// ================================
-fetch('../php/patient/get-stats.php')
-    .then(res => res.json())
-    .then(data => {
-        document.getElementById('total-appointments').textContent = data.total || 0;
-        document.getElementById('completed-appointments').textContent = data.completed || 0;
-        document.getElementById('pending-appointments').textContent = data.pending || 0;
-    });
-
-// ================================
-// Load Reaction Counts on Page Load
-// ================================
-document.querySelectorAll('.post-card').forEach(card => {
-    let postId = card.id.replace('post-', '');
-    loadReactions(postId);
-    loadComments(postId);
-});
-
-// ================================
-// Feature #3: Like/Dislike
-// ================================
-function reactPost(postId, type) {
-    fetch('../php/posts/react.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ post_id: postId, reaction: type })
-    })
-    .then(res => res.json())
-    .then(data => {
-        loadReactions(postId);
-    });
-}
-
-function loadReactions(postId) {
-    fetch(`../php/posts/get-reactions.php?post_id=${postId}`)
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById(`like-count-${postId}`).textContent = data.likes || 0;
-            document.getElementById(`dislike-count-${postId}`).textContent = data.dislikes || 0;
+    <script>
+        // ================================
+        // GSAP Animations
+        // ================================
+        gsap.from(".stat-card", {
+            duration: 0.6,
+            y: 30,
+            opacity: 0,
+            stagger: 0.15,
+            ease: "power3.out"
         });
-}
 
-// ================================
-// Feature #2: Real-time Comments
-// ================================
-function toggleComments(postId) {
-    let section = document.getElementById(`comments-${postId}`);
-    if (section.style.display === 'none') {
-        section.style.display = 'block';
-        loadComments(postId);
-    } else {
-        section.style.display = 'none';
-    }
-}
+        gsap.from(".post-card", {
+            duration: 0.5,
+            y: 20,
+            opacity: 0,
+            stagger: 0.1,
+            delay: 0.3,
+            ease: "power3.out"
+        });
 
-function loadComments(postId) {
-    fetch(`../php/posts/get-comments.php?post_id=${postId}`)
-        .then(res => res.json())
-        .then(data => {
-            let list = document.getElementById(`comment-list-${postId}`);
-            list.innerHTML = '';
-            data.forEach(c => {
-                list.innerHTML += `
+        // ================================
+        // Load Appointment Stats
+        // ================================
+        fetch('../php/patient/get-stats.php')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('total-appointments').textContent = data.total || 0;
+                document.getElementById('completed-appointments').textContent = data.completed || 0;
+                document.getElementById('pending-appointments').textContent = data.pending || 0;
+            });
+
+        // ================================
+        // Load Reaction Counts on Page Load
+        // ================================
+        document.querySelectorAll('.post-card').forEach(card => {
+            let postId = card.id.replace('post-', '');
+            loadReactions(postId);
+            loadComments(postId);
+        });
+
+        // ================================
+        // Feature #3: Like/Dislike
+        // ================================
+        function reactPost(postId, type) {
+            fetch('../php/posts/react.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        post_id: postId,
+                        reaction: type
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    loadReactions(postId);
+                });
+        }
+
+        function loadReactions(postId) {
+            fetch(`../php/posts/get-reactions.php?post_id=${postId}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById(`like-count-${postId}`).textContent = data.likes || 0;
+                    document.getElementById(`dislike-count-${postId}`).textContent = data.dislikes || 0;
+                });
+        }
+
+        // ================================
+        // Feature #2: Real-time Comments
+        // ================================
+        function toggleComments(postId) {
+            let section = document.getElementById(`comments-${postId}`);
+            if (section.style.display === 'none') {
+                section.style.display = 'block';
+                loadComments(postId);
+            } else {
+                section.style.display = 'none';
+            }
+        }
+
+        function loadComments(postId) {
+            fetch(`../php/posts/get-comments.php?post_id=${postId}`)
+                .then(res => res.json())
+                .then(data => {
+                    let list = document.getElementById(`comment-list-${postId}`);
+                    list.innerHTML = '';
+                    data.forEach(c => {
+                        list.innerHTML += `
                     <div class="comment-item">
                         <div class="comment-avatar">${c.username.charAt(0).toUpperCase()}</div>
                         <div class="comment-body">
@@ -667,57 +719,115 @@ function loadComments(postId) {
                             <p>${c.comment_text}</p>
                         </div>
                     </div>`;
-            });
-        });
-}
-
-function submitComment(postId) {
-    let input = document.getElementById(`comment-input-${postId}`);
-    let text = input.value.trim();
-    if (!text) return;
-
-    fetch('../php/posts/add-comment.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ post_id: postId, comment: text })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            input.value = '';
-            loadComments(postId);
+                    });
+                });
         }
-    });
-}
 
-// ================================
-// Feature #7: Rating
-// ================================
-function ratePost(postId, rating) {
-    let stars = document.querySelectorAll(`#rating-${postId} i`);
-    stars.forEach((star, index) => {
-        star.style.color = index < rating ? '#ffc107' : '#ddd';
-    });
+        function submitComment(postId) {
+            let input = document.getElementById(`comment-input-${postId}`);
+            let text = input.value.trim();
+            if (!text) return;
 
-    fetch('../php/posts/rate.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ post_id: postId, rating: rating })
-    })
-    .then(res => res.json())
-    .then(data => {
-        console.log('Rating saved:', data);
-    });
-}
+            fetch('../php/posts/add-comment.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        post_id: postId,
+                        comment: text
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        input.value = '';
+                        loadComments(postId);
+                    }
+                });
+        }
 
-// ================================
-// File Upload Preview
-// ================================
-function showFileName(input) {
-    let name = input.files[0]?.name;
-    document.getElementById('file-name').textContent = name || '';
-}
-</script>
+        // ================================
+        // Feature #7: Rating
+        // ================================
+        function ratePost(postId, rating) {
+            let stars = document.querySelectorAll(`#rating-${postId} i`);
+            stars.forEach((star, index) => {
+                star.style.color = index < rating ? '#ffc107' : '#ddd';
+            });
+
+            fetch('../php/posts/rate.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        post_id: postId,
+                        rating: rating
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    console.log('Rating saved:', data);
+                });
+        }
+
+        // ================================
+        // File Upload Preview
+        // ================================
+        function showFileName(input) {
+            let name = input.files[0]?.name;
+            document.getElementById('file-name').textContent = name || '';
+        }
+        // Toggle media input
+        function toggleMediaInput() {
+            let type = document.getElementById('mediaType').value;
+            let urlInput = document.getElementById('mediaUrl');
+            urlInput.style.display = type === 'none' ? 'none' : 'block';
+
+            if (type === 'youtube') {
+                urlInput.placeholder = 'YouTube Video ID (e.g. dQw4w9WgXcQ)';
+            } else if (type === 'image') {
+                urlInput.placeholder = 'Image URL';
+            }
+        }
+
+        // Create Post
+        function createPost() {
+            let title = document.getElementById('postTitle').value.trim();
+            let content = document.getElementById('postContent').value.trim();
+            let mediaType = document.getElementById('mediaType').value;
+            let mediaUrl = document.getElementById('mediaUrl').value.trim();
+
+            if (!title || !content) {
+                alert('Please fill title and content!');
+                return;
+            }
+
+            fetch('../php/posts/create-post.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        content: content,
+                        media_type: mediaType,
+                        media_url: mediaUrl || null
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Post created!');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                });
+        }
+    </script>
 
 </body>
+
 </html>

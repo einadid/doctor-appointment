@@ -4,50 +4,79 @@
     <meta charset="UTF-8">
     <title>Register - DocBook</title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <!-- Flatpickr (Datepicker) CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
 <body>
 
-<div class="form-container">
-    <h2>Create Account</h2>
-    <form id="registerForm" action="../php/auth/register-process.php" method="POST">
-        
-        <!-- Role Selection (Feature 6: Dropdown) -->
+<div class="form-container" style="margin-top:40px; max-width:600px;">
+    <h2 style="text-align:center; color:#1a73e8; margin-bottom:25px;">
+        <i class="bi bi-person-plus"></i> Create Account
+    </h2>
+
+    <form id="registerForm"
+          action="../php/auth/register-process.php"
+          method="POST">
+
+        <!-- Role Selection -->
         <div class="form-group">
-            <label>I am a:</label>
-            <select name="role" id="role" required>
+            <label>Register As:</label>
+            <select name="role" id="role" required onchange="toggleFields()">
                 <option value="patient">Patient</option>
                 <option value="doctor">Doctor</option>
             </select>
         </div>
 
-        <!-- Username (Feature 4: Realtime Check) -->
-        <div class="form-group">
-            <label>Username</label>
-            <input type="text" name="username" id="username" placeholder="Choose a unique username" required>
-            <small id="user-status" class="validation-msg"></small>
+        <div class="form-row">
+            <!-- Full Name -->
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" name="full_name"
+                       placeholder="Your full name" required>
+            </div>
+
+            <!-- Username -->
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username"
+                       id="username"
+                       placeholder="Choose username" required>
+                <small id="user-status" class="validation-msg"></small>
+            </div>
         </div>
 
         <div class="form-row">
-            <!-- Email (Feature 5: Verification) -->
+            <!-- Email -->
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" name="email" id="email" required>
+                <input type="email" name="email"
+                       id="email"
+                       placeholder="your@email.com" required>
+                <small id="email-status" class="validation-msg"></small>
             </div>
-            <!-- Phone (Feature 5: Verification) -->
+
+            <!-- Phone -->
             <div class="form-group">
                 <label>Phone Number</label>
-                <input type="text" name="phone" id="phone" required>
+                <input type="text" name="phone"
+                       id="phone"
+                       placeholder="01XXXXXXXXX" required>
+                <small id="phone-status" class="validation-msg"></small>
             </div>
         </div>
 
         <div class="form-row">
-            <!-- Datepicker (Feature 14) -->
+            <!-- Date of Birth -->
             <div class="form-group">
                 <label>Date of Birth</label>
-                <input type="text" name="dob" id="dob" placeholder="Select Date" required>
+                <input type="text" name="dob"
+                       id="dob"
+                       placeholder="Select date" required>
             </div>
+
+            <!-- Gender -->
             <div class="form-group">
                 <label>Gender</label>
                 <select name="gender" required>
@@ -58,44 +87,180 @@
             </div>
         </div>
 
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" name="password" required>
+        <!-- Doctor only fields -->
+        <div id="doctorFields" style="display:none;">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Specialty</label>
+                    <select name="specialty_id" id="specialtySelect">
+                        <!-- Load via AJAX -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Qualification</label>
+                    <input type="text" name="qualification"
+                           placeholder="e.g. MBBS, MD">
+                </div>
+            </div>
         </div>
 
-        <button type="submit" class="btn-submit">Register Now</button>
-        <p style="text-align:center; margin-top:15px;">Already have an account? <a href="login.html" style="color:#1a73e8;">Login</a></p>
+        <!-- Password -->
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password"
+                   id="password"
+                   placeholder="Minimum 6 characters" required>
+            <small id="pass-status" class="validation-msg"></small>
+        </div>
+
+        <button type="submit" class="btn-submit"
+                id="submitBtn">
+            Create Account
+        </button>
+
+        <p style="text-align:center; margin-top:15px; font-size:13px;">
+            Already have an account?
+            <a href="login.html" style="color:#1a73e8;">Login</a>
+        </p>
     </form>
 </div>
 
-<!-- JS Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-    // 1. Datepicker Initialize
-    flatpickr("#dob", { dateFormat: "Y-m-d" });
+// Datepicker
+flatpickr("#dob", {
+    dateFormat: "Y-m-d",
+    maxDate: "today"
+});
 
-    // 2. Real-time Username Check (Feature #4)
-    const usernameInput = document.getElementById('username');
-    const userStatus = document.getElementById('user-status');
+// Toggle doctor fields
+function toggleFields() {
+    let role = document.getElementById('role').value;
+    let doctorFields = document.getElementById('doctorFields');
 
-    usernameInput.addEventListener('keyup', function() {
-        let username = this.value;
-        if(username.length > 2) {
-            fetch(`../php/auth/check-username.php?username=${username}`)
-                .then(res => res.json())
-                .then(data => {
-                    if(data.exists) {
-                        userStatus.textContent = "Username already taken!";
-                        userStatus.style.color = "red";
-                        usernameInput.classList.add('invalid');
-                    } else {
-                        userStatus.textContent = "Username available!";
-                        userStatus.style.color = "green";
-                        usernameInput.classList.remove('invalid');
-                    }
-                });
-        }
-    });
+    if(role === 'doctor') {
+        doctorFields.style.display = 'block';
+        loadSpecialties();
+    } else {
+        doctorFields.style.display = 'none';
+    }
+}
+
+// Load specialties
+function loadSpecialties() {
+    let select = document.getElementById('specialtySelect');
+    if(select.options.length > 1) return;
+
+    fetch('../php/api/get-specialties.php')
+        .then(res => res.json())
+        .then(data => {
+            select.innerHTML = '';
+            data.forEach(s => {
+                select.innerHTML += `
+                    <option value="${s.id}">${s.name}</option>`;
+            });
+        });
+}
+
+// Real-time Username Check (Feature #4)
+document.getElementById('username').addEventListener('keyup', function() {
+    let val = this.value.trim();
+    let status = document.getElementById('user-status');
+
+    if(val.length < 3) {
+        status.textContent = 'Minimum 3 characters';
+        status.style.color = 'orange';
+        return;
+    }
+
+    fetch(`../php/auth/check-username.php?username=${val}`)
+        .then(res => res.json())
+        .then(data => {
+            if(data.exists) {
+                status.textContent = '❌ Username taken!';
+                status.style.color = 'red';
+                this.classList.add('invalid');
+            } else {
+                status.textContent = '✅ Available!';
+                status.style.color = 'green';
+                this.classList.remove('invalid');
+            }
+        });
+});
+
+// Email validation (Feature #5)
+document.getElementById('email').addEventListener('blur', function() {
+    let val = this.value.trim();
+    let status = document.getElementById('email-status');
+    let regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if(regex.test(val)) {
+        status.textContent = '✅ Valid email';
+        status.style.color = 'green';
+        this.classList.remove('invalid');
+    } else {
+        status.textContent = '❌ Invalid email format';
+        status.style.color = 'red';
+        this.classList.add('invalid');
+    }
+});
+
+// Phone validation (Feature #5)
+document.getElementById('phone').addEventListener('keyup', function() {
+    let val = this.value.trim();
+    let status = document.getElementById('phone-status');
+    let regex = /^01[3-9]\d{8}$/;
+
+    if(regex.test(val)) {
+        status.textContent = '✅ Valid phone number';
+        status.style.color = 'green';
+        this.classList.remove('invalid');
+    } else {
+        status.textContent = '❌ Enter valid BD number (01XXXXXXXXX)';
+        status.style.color = 'red';
+    }
+});
+
+// Password validation
+document.getElementById('password').addEventListener('keyup', function() {
+    let val = this.value;
+    let status = document.getElementById('pass-status');
+
+    if(val.length >= 6) {
+        status.textContent = '✅ Strong enough';
+        status.style.color = 'green';
+    } else {
+        status.textContent = '❌ Minimum 6 characters';
+        status.style.color = 'red';
+    }
+});
+
+// Form submit validation
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    let username = document.getElementById('username').value;
+    let email = document.getElementById('email').value;
+    let phone = document.getElementById('phone').value;
+    let password = document.getElementById('password').value;
+
+    if(username.length < 3) {
+        e.preventDefault();
+        alert('Username must be at least 3 characters!');
+        return;
+    }
+
+    if(password.length < 6) {
+        e.preventDefault();
+        alert('Password must be at least 6 characters!');
+        return;
+    }
+
+    let phoneRegex = /^01[3-9]\d{8}$/;
+    if(!phoneRegex.test(phone)) {
+        e.preventDefault();
+        alert('Please enter a valid Bangladesh phone number!');
+        return;
+    }
+});
 </script>
 </body>
 </html>
