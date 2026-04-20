@@ -3,79 +3,1099 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doctor Appointment System</title>
-
-    <!-- SASS compiled CSS -->
+    <title>DocBook - Online Doctor Appointment</title>
     <link rel="stylesheet" href="assets/css/style.css">
-
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" 
+    <link rel="stylesheet" href="assets/css/fix.css">
+    <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #fff;
+            overflow-x: hidden;
+        }
 
-    <!-- GSAP -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+        /* ========== NAVBAR ========== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            padding: 15px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.4s;
+            background: transparent;
+        }
 
+        .navbar.scrolled {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            padding: 10px 60px;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-brand .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .navbar-brand h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .navbar.scrolled .navbar-brand h2 {
+            color: #1a73e8;
+        }
+
+        .navbar-brand h2 span {
+            color: #34d399;
+        }
+
+        .navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .navbar-links a {
+            color: rgba(255,255,255,0.9);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .navbar.scrolled .navbar-links a {
+            color: #333;
+        }
+
+        .navbar-links a:hover {
+            color: #34d399;
+        }
+
+        .navbar-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #34d399;
+            transition: width 0.3s;
+        }
+
+        .navbar-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-btn {
+            padding: 8px 22px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-nav-login {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 1.5px solid rgba(255,255,255,0.4);
+        }
+
+        .navbar.scrolled .btn-nav-login {
+            background: transparent;
+            color: #1a73e8;
+            border-color: #1a73e8;
+        }
+
+        .btn-nav-login:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .btn-nav-register {
+            background: #34d399;
+            color: white;
+        }
+
+        .btn-nav-register:hover {
+            background: #22b07d;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52,211,153,0.4);
+        }
+
+        /* ========== HERO ========== */
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a1628 0%, #1a3a5c 40%, #1a73e8 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 0 80px;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 80%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(52,211,153,0.08) 0%, transparent 60%);
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 120px;
+            background: linear-gradient(transparent, white);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-30px) rotate(3deg); }
+        }
+
+        /* Floating particles */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 600px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(52,211,153,0.15);
+            border: 1px solid rgba(52,211,153,0.3);
+            color: #34d399;
+            padding: 6px 16px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .hero h1 {
+            font-size: 52px;
+            font-weight: 800;
+            color: white;
+            line-height: 1.15;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 .highlight {
+            background: linear-gradient(135deg, #34d399, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            color: rgba(255,255,255,0.7);
+            font-size: 16px;
+            line-height: 1.7;
+            margin-bottom: 35px;
+            max-width: 500px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .hero-btn {
+            padding: 14px 32px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hero-btn-primary {
+            background: #34d399;
+            color: white;
+            box-shadow: 0 8px 25px rgba(52,211,153,0.35);
+        }
+
+        .hero-btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(52,211,153,0.5);
+        }
+
+        .hero-btn-secondary {
+            background: rgba(255,255,255,0.08);
+            color: white;
+            border: 1.5px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-btn-secondary:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-3px);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+        }
+
+        .hero-stat {
+            text-align: left;
+        }
+
+        .hero-stat h3 {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .hero-stat h3 span {
+            color: #34d399;
+        }
+
+        .hero-stat p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            margin: 0;
+        }
+
+        /* Hero Image Side */
+        .hero-image {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1;
+            width: 50%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-card-float {
+            position: absolute;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 16px;
+            padding: 20px;
+            color: white;
+        }
+
+        .float-card-1 {
+            top: 20%;
+            right: 15%;
+            width: 220px;
+        }
+
+        .float-card-2 {
+            bottom: 25%;
+            right: 25%;
+            width: 240px;
+        }
+
+        .float-card-3 {
+            top: 45%;
+            right: 5%;
+            width: 180px;
+        }
+
+        .float-card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .float-card-1 .float-card-icon {
+            background: rgba(52,211,153,0.2);
+            color: #34d399;
+        }
+
+        .float-card-2 .float-card-icon {
+            background: rgba(59,130,246,0.2);
+            color: #3b82f6;
+        }
+
+        .float-card-3 .float-card-icon {
+            background: rgba(251,191,36,0.2);
+            color: #fbbf24;
+        }
+
+        .float-card-1 h4, .float-card-2 h4, .float-card-3 h4 {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .float-card-1 p, .float-card-2 p, .float-card-3 p {
+            font-size: 11px;
+            opacity: 0.7;
+            margin: 0;
+        }
+
+        /* ========== FEATURES SECTION ========== */
+        .features {
+            padding: 100px 80px;
+            background: white;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-tag {
+            display: inline-block;
+            background: #e8f5e9;
+            color: #198754;
+            padding: 5px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .section-header h2 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #0a1628;
+            margin-bottom: 12px;
+        }
+
+        .section-header p {
+            color: #6c757d;
+            font-size: 15px;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .feature-card {
+            padding: 30px 25px;
+            border-radius: 16px;
+            background: #f8fafb;
+            border: 1px solid #e8ecf0;
+            transition: all 0.4s;
+            cursor: default;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border-color: transparent;
+            background: white;
+        }
+
+        .feature-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 18px;
+        }
+
+        .feature-card h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #0a1628;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 13px;
+            color: #6c757d;
+            line-height: 1.6;
+        }
+
+        /* ========== DOCTORS SECTION ========== */
+        .doctors-section {
+            padding: 100px 80px;
+            background: #f0f5fa;
+        }
+
+        .doctors-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .doctor-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.4s;
+            border: 1px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .doctor-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+            border-radius: 16px 16px 0 0;
+        }
+
+        .doctor-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .doctor-card img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            position: relative;
+            z-index: 1;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .doctor-card h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #0a1628;
+            margin-top: 12px;
+        }
+
+        .doctor-card .doc-specialty {
+            font-size: 12px;
+            color: #1a73e8;
+            font-weight: 500;
+            margin-top: 3px;
+        }
+
+        .doctor-card .doc-rating {
+            color: #fbbf24;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .doctor-card .doc-fee {
+            font-size: 14px;
+            color: #198754;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .btn-book-doc {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 24px;
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+            color: white;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-book-doc:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26,115,232,0.4);
+        }
+
+        /* ========== STATS BANNER ========== */
+        .stats-banner {
+            padding: 60px 80px;
+            background: linear-gradient(135deg, #0a1628, #1a3a5c);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+            color: white;
+        }
+
+        .stat-item h3 {
+            font-size: 36px;
+            font-weight: 700;
+        }
+
+        .stat-item h3 span {
+            color: #34d399;
+        }
+
+        .stat-item p {
+            font-size: 13px;
+            opacity: 0.6;
+            margin-top: 5px;
+        }
+
+        /* ========== FOOTER ========== */
+        .footer {
+            background: #0a1628;
+            color: white;
+            padding: 60px 80px 30px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-about h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .footer-about h3 span {
+            color: #34d399;
+        }
+
+        .footer-about p {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            line-height: 1.7;
+        }
+
+        .footer-links h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .footer-links a {
+            display: block;
+            color: rgba(255,255,255,0.4);
+            font-size: 13px;
+            margin-bottom: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #34d399;
+            padding-left: 5px;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255,255,255,0.3);
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .navbar { padding: 12px 20px; }
+            .navbar-links { display: none; }
+            .hero { padding: 0 20px; }
+            .hero h1 { font-size: 28px; }
+            .hero-image { display: none; }
+            .features { padding: 60px 20px; }
+            .features-grid { grid-template-columns: 1fr 1fr; }
+            .doctors-grid { grid-template-columns: 1fr 1fr; }
+            .doctors-section { padding: 60px 20px; }
+            .stats-banner { padding: 40px 20px; grid-template-columns: 1fr 1fr; }
+            .footer { padding: 40px 20px; }
+            .footer-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
 
-<!-- NAVBAR -->
-<nav class="navbar">
-    <div class="navbar-brand">
-        <i class="bi bi-hospital" style="font-size:32px; color:#1a73e8;"></i>
+<!-- ========== STICKY NAVBAR ========== -->
+<nav class="top-navbar" id="navbar">
+    <a href="index.html" class="nav-brand">
+        <div class="nav-logo">
+            <i class="bi bi-heart-pulse"></i>
+        </div>
         <h2>Doc<span>Book</span></h2>
-    </div>
-    <div class="navbar-links">
-        <a href="index.html" class="active">Home</a>
+    </a>
+
+    <div class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#features">Features</a>
         <a href="#doctors">Doctors</a>
         <a href="pages/symptom-checker.php">AI Checker</a>
-        <a href="pages/graphql-test.html">GraphQL</a>
         <a href="#contact">Contact</a>
-        <a href="pages/login.html" class="btn-login">Login</a>
-        <a href="pages/register.html" class="btn-register">Register</a>
+        <a href="pages/login.html" class="nav-btn btn-login">Login</a>
+        <a href="pages/register.html" class="nav-btn btn-register">Register</a>
     </div>
 </nav>
 
-<!-- HERO -->
+<!-- ========== HERO ========== -->
 <section class="hero" id="home">
-    <h1 id="hero-title">Book Your Doctor<br>Appointment Online</h1>
-    <p id="hero-sub">Find the best doctors, schedule appointments easily, and manage your health from anywhere.</p>
-    <div class="hero-btns">
-        <a href="pages/register.html" class="btn-primary">Get Started</a>
-        <a href="#doctors" class="btn-secondary">View Doctors</a>
+    <!-- Particles Background -->
+    <div class="particles" id="particles"></div>
+
+    <div class="hero-content">
+        <div class="hero-badge" id="heroBadge">
+            <i class="bi bi-lightning-charge-fill"></i>
+            #1 Doctor Appointment Platform
+        </div>
+
+        <h1 id="heroTitle">
+            Your Health,<br>
+            Our <span class="highlight">Priority</span>
+        </h1>
+
+        <p id="heroDesc">
+            Find the best doctors, book appointments instantly,
+            and manage your healthcare journey — all from one place.
+        </p>
+
+        <div class="hero-buttons" id="heroButtons">
+            <a href="pages/register.html" class="hero-btn hero-btn-primary">
+                <i class="bi bi-calendar-plus"></i>
+                Book Appointment
+            </a>
+            <a href="#doctors" class="hero-btn hero-btn-secondary">
+                <i class="bi bi-play-circle"></i>
+                Explore Doctors
+            </a>
+        </div>
+
+        <div class="hero-stats" id="heroStats">
+            <div class="hero-stat">
+                <h3>500<span>+</span></h3>
+                <p>Expert Doctors</p>
+            </div>
+            <div class="hero-stat">
+                <h3>10K<span>+</span></h3>
+                <p>Happy Patients</p>
+            </div>
+            <div class="hero-stat">
+                <h3>98<span>%</span></h3>
+                <p>Success Rate</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Cards -->
+    <div class="hero-image">
+        <div class="hero-card-float float-card-1" id="floatCard1">
+            <div class="float-card-icon">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+            <h4>Easy Booking</h4>
+            <p>Schedule in just 2 minutes</p>
+        </div>
+
+        <div class="hero-card-float float-card-2" id="floatCard2">
+            <div class="float-card-icon">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <h4>Verified Doctors</h4>
+            <p>All doctors are verified professionals</p>
+        </div>
+
+        <div class="hero-card-float float-card-3" id="floatCard3">
+            <div class="float-card-icon">
+                <i class="bi bi-cpu"></i>
+            </div>
+            <h4>AI Symptom Check</h4>
+            <p>Instant health prediction</p>
+        </div>
     </div>
 </section>
 
-<!-- GSAP Animation -->
+<!-- ========== FEATURES ========== -->
+<section class="features" id="features">
+    <div class="section-header">
+        <span class="section-tag">WHY CHOOSE US</span>
+        <h2>Everything You Need</h2>
+        <p>A complete healthcare management platform with modern features</p>
+    </div>
+
+    <div class="features-grid">
+        <div class="feature-card" id="fc1">
+            <div class="feature-icon" style="background:#e8f5e9; color:#198754;">
+                <i class="bi bi-calendar2-check"></i>
+            </div>
+            <h3>Online Booking</h3>
+            <p>Book appointments with your preferred doctor anytime, anywhere.</p>
+        </div>
+
+        <div class="feature-card" id="fc2">
+            <div class="feature-icon" style="background:#e8f0fe; color:#1a73e8;">
+                <i class="bi bi-cpu"></i>
+            </div>
+            <h3>AI Symptom Checker</h3>
+            <p>Get instant health predictions using our TensorFlow AI model.</p>
+        </div>
+
+        <div class="feature-card" id="fc3">
+            <div class="feature-icon" style="background:#fff3cd; color:#ffc107;">
+                <i class="bi bi-star-fill"></i>
+            </div>
+            <h3>Doctor Ratings</h3>
+            <p>Rate and review doctors to help others make informed decisions.</p>
+        </div>
+
+        <div class="feature-card" id="fc4">
+            <div class="feature-icon" style="background:#f8d7da; color:#dc3545;">
+                <i class="bi bi-chat-dots"></i>
+            </div>
+            <h3>Real-time Chat</h3>
+            <p>Comment and interact with health posts in real-time.</p>
+        </div>
+
+        <div class="feature-card" id="fc5">
+            <div class="feature-icon" style="background:#e0f2f1; color:#009688;">
+                <i class="bi bi-geo-alt"></i>
+            </div>
+            <h3>Map Integration</h3>
+            <p>Find doctors near you with Google Maps integration.</p>
+        </div>
+
+        <div class="feature-card" id="fc6">
+            <div class="feature-icon" style="background:#ede7f6; color:#673ab7;">
+                <i class="bi bi-shield-lock"></i>
+            </div>
+            <h3>Secure System</h3>
+            <p>Email & phone OTP verification for maximum security.</p>
+        </div>
+
+        <div class="feature-card" id="fc7">
+            <div class="feature-icon" style="background:#fff8e1; color:#ff8f00;">
+                <i class="bi bi-file-earmark-bar-graph"></i>
+            </div>
+            <h3>Reports</h3>
+            <p>Generate and print detailed healthcare reports.</p>
+        </div>
+
+        <div class="feature-card" id="fc8">
+            <div class="feature-icon" style="background:#fce4ec; color:#e91e63;">
+                <i class="bi bi-phone"></i>
+            </div>
+            <h3>Responsive Design</h3>
+            <p>Works perfectly on desktop, tablet, and mobile devices.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ========== DOCTORS ========== -->
+<section class="doctors-section" id="doctors">
+    <div class="section-header">
+        <span class="section-tag">OUR SPECIALISTS</span>
+        <h2>Meet Our Doctors</h2>
+        <p>Expert healthcare professionals ready to serve you</p>
+    </div>
+
+    <div class="doctors-grid" id="doctorsGrid">
+        <!-- Load dynamically -->
+    </div>
+</section>
+
+<!-- ========== STATS ========== -->
+<section class="stats-banner">
+    <div class="stat-item" id="si1">
+        <h3 id="counter1">0<span>+</span></h3>
+        <p>Registered Doctors</p>
+    </div>
+    <div class="stat-item" id="si2">
+        <h3 id="counter2">0<span>+</span></h3>
+        <p>Happy Patients</p>
+    </div>
+    <div class="stat-item" id="si3">
+        <h3 id="counter3">0<span>+</span></h3>
+        <p>Appointments Booked</p>
+    </div>
+    <div class="stat-item" id="si4">
+        <h3 id="counter4">0<span>%</span></h3>
+        <p>Satisfaction Rate</p>
+    </div>
+</section>
+
+<!-- ========== YOUTUBE EMBED (Feature #9) ========== -->
+<section style="padding:80px; background:white; text-align:center;" id="about">
+    <div class="section-header">
+        <span class="section-tag">ABOUT US</span>
+        <h2>How DocBook Works</h2>
+        <p>Watch our quick introduction video</p>
+    </div>
+
+    <div style="max-width:750px; margin:0 auto; border-radius:16px;
+                overflow:hidden; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
+        <iframe width="100%" height="420"
+                src="https://www.youtube.com/embed/wnHW6o8WMas"
+                frameborder="0"
+                allow="autoplay; encrypted-media"
+                allowfullscreen></iframe>
+    </div>
+</section>
+
+<!-- ========== GOOGLE MAP (Feature #10) ========== -->
+<section style="padding:80px; background:#f0f5fa;" id="contact">
+    <div class="section-header">
+        <span class="section-tag">FIND US</span>
+        <h2>Our Location</h2>
+        <p>Visit us or find doctors near your location</p>
+    </div>
+
+    <div style="max-width:900px; margin:0 auto; border-radius:16px;
+                overflow:hidden; box-shadow:0 6px 20px rgba(0,0,0,0.1);">
+        <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.9!2d90.3584!3d23.7461!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjPCsDQ0JzQ2LjAiTiA5MMKwMjEnMzAuMiJF!5e0!3m2!1sen!2sbd!4v1234567890"
+            width="100%" height="400"
+            style="border:0;"
+            allowfullscreen=""
+            loading="lazy">
+        </iframe>
+    </div>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer class="footer">
+    <div class="footer-grid">
+        <div class="footer-about">
+            <h3>Doc<span>Book</span></h3>
+            <p>
+                Your trusted online doctor appointment platform.
+                We connect patients with the best healthcare
+                professionals for a healthier tomorrow.
+            </p>
+        </div>
+
+        <div class="footer-links">
+            <h4>Quick Links</h4>
+            <a href="#home">Home</a>
+            <a href="#features">Features</a>
+            <a href="#doctors">Doctors</a>
+            <a href="#contact">Contact</a>
+        </div>
+
+        <div class="footer-links">
+            <h4>Services</h4>
+            <a href="pages/register.html">Book Appointment</a>
+            <a href="pages/symptom-checker.php">AI Checker</a>
+            <a href="pages/graphql-test.html">GraphQL API</a>
+        </div>
+
+        <div class="footer-links">
+            <h4>Contact</h4>
+            <a href="#">📧 info@docbook.com</a>
+            <a href="#">📞 +880 1700-000000</a>
+            <a href="#">📍 Dhaka, Bangladesh</a>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        &copy; 2025 DocBook. All rights reserved. | Made with ❤️
+    </div>
+</footer>
+
+<!-- ========== SCRIPTS ========== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
 <script>
-gsap.from("#hero-title", {
-    duration: 1,
-    y: -60,
-    opacity: 0,
-    ease: "power3.out"
-});
+gsap.registerPlugin(ScrollTrigger);
 
-gsap.from("#hero-sub", {
-    duration: 1,
+// ========== Navbar Scroll ==========
+window.addEventListener('scroll', () => {
+    let nav = document.getElementById('navbar');
+    if (window.scrollY > 100) {
+        nav.style.boxShadow = '0 4px 30px rgba(0,0,0,0.12)';
+    } else {
+        nav.style.boxShadow = '0 2px 20px rgba(0,0,0,0.08)';
+    }
+});    let navbar = document.getElementById('navbar');
+    navbar.classList.toggle('scrolled', window.scrollY > 50);
+
+
+// ========== Particles ==========
+function createParticles() {
+    let container = document.getElementById('particles');
+    for(let i = 0; i < 20; i++) {
+        let particle = document.createElement('div');
+        particle.className = 'particle';
+        let size = Math.random() * 100 + 30;
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        container.appendChild(particle);
+
+        gsap.to(particle, {
+            y: -200,
+            x: (Math.random() - 0.5) * 200,
+            opacity: 0,
+            duration: Math.random() * 10 + 10,
+            repeat: -1,
+            delay: Math.random() * 5,
+            ease: "none"
+        });
+    }
+}
+createParticles();
+
+// ========== Hero Animations ==========
+gsap.from('#heroBadge', { duration: 0.8, y: 30, opacity: 0, ease: "power3.out" });
+gsap.from('#heroTitle', { duration: 1, y: 50, opacity: 0, delay: 0.2, ease: "power3.out" });
+gsap.from('#heroDesc', { duration: 1, y: 40, opacity: 0, delay: 0.4, ease: "power3.out" });
+gsap.from('#heroButtons', { duration: 1, y: 40, opacity: 0, delay: 0.6, ease: "power3.out" });
+gsap.from('#heroStats .hero-stat', { duration: 0.8, y: 30, opacity: 0, stagger: 0.15, delay: 0.8, ease: "power3.out" });
+
+// Floating cards
+gsap.from('#floatCard1', { duration: 1.2, x: 100, opacity: 0, delay: 0.5, ease: "power3.out" });
+gsap.from('#floatCard2', { duration: 1.2, x: 120, opacity: 0, delay: 0.7, ease: "power3.out" });
+gsap.from('#floatCard3', { duration: 1.2, x: 80, opacity: 0, delay: 0.9, ease: "power3.out" });
+
+gsap.to('#floatCard1', { y: -15, duration: 3, yoyo: true, repeat: -1, ease: "sine.inOut" });
+gsap.to('#floatCard2', { y: 15, duration: 4, yoyo: true, repeat: -1, ease: "sine.inOut" });
+gsap.to('#floatCard3', { y: -10, duration: 3.5, yoyo: true, repeat: -1, ease: "sine.inOut" });
+
+// ========== Feature Cards (Scroll Animation) ==========
+gsap.from('.feature-card', {
+    scrollTrigger: { trigger: '.features', start: 'top 80%' },
+    duration: 0.6,
     y: 40,
     opacity: 0,
-    delay: 0.4,
+    stagger: 0.1,
     ease: "power3.out"
 });
 
-gsap.from(".hero-btns", {
-    duration: 1,
-    y: 40,
+// ========== Doctor Cards ==========
+gsap.from('.doctor-card', {
+    scrollTrigger: { trigger: '.doctors-section', start: 'top 80%' },
+    duration: 0.6,
+    y: 30,
     opacity: 0,
-    delay: 0.7,
+    stagger: 0.1,
     ease: "power3.out"
 });
 
-gsap.from(".navbar", {
-    duration: 0.8,
-    y: -80,
-    opacity: 0,
-    ease: "power3.out"
-});
+// ========== Stats Counter ==========
+function animateCounter(id, target, suffix) {
+    let obj = { val: 0 };
+    gsap.to(obj, {
+        val: target,
+        duration: 2,
+        ease: "power2.out",
+        scrollTrigger: { trigger: '.stats-banner', start: 'top 80%' },
+        onUpdate: function() {
+            document.getElementById(id).innerHTML =
+                Math.floor(obj.val) + `<span>${suffix}</span>`;
+        }
+    });
+}
+
+animateCounter('counter1', 500, '+');
+animateCounter('counter2', 10000, '+');
+animateCounter('counter3', 8500, '+');
+animateCounter('counter4', 98, '%');
+
+// ========== Load Doctors from API ==========
+fetch('php/api/get-doctors.php?specialty_id=0')
+    .then(res => res.json())
+    .then(doctors => {
+        let grid = document.getElementById('doctorsGrid');
+
+        // If no doctors from DB, show sample
+        if(doctors.length === 0) {
+            let sampleDoctors = [
+                { full_name: 'Dr. Ahmed Khan', specialty: 'Cardiology', consultation_fee: 800 },
+                { full_name: 'Dr. Fatima Rahman', specialty: 'Neurology', consultation_fee: 1000 },
+                { full_name: 'Dr. Imran Hossain', specialty: 'Orthopedics', consultation_fee: 700 },
+                { full_name: 'Dr. Nadia Islam', specialty: 'Dermatology', consultation_fee: 600 }
+            ];
+            doctors = sampleDoctors;
+        }
+
+        doctors.slice(0, 4).forEach(doc => {
+            grid.innerHTML += `
+                <div class="doctor-card">
+                    <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(doc.full_name)}&background=1a73e8&color=fff&size=80"
+                         alt="${doc.full_name}">
+                    <h4>${doc.full_name}</h4>
+                    <div class="doc-specialty">${doc.specialty || 'General'}</div>
+                    <div class="doc-rating">⭐⭐⭐⭐⭐</div>
+                    <div class="doc-fee">৳${doc.consultation_fee || 500}</div>
+                    <a href="pages/login.html" class="btn-book-doc">
+                        Book Now
+                    </a>
+                </div>`;
+        });
+    })
+    .catch(() => {
+        // Fallback
+    });
 </script>
 
 </body>

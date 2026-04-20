@@ -1,5 +1,6 @@
+
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: login.html");
     exit();
@@ -11,125 +12,110 @@ $user_id = $_SESSION['user_id'];
 // Admin info
 $admin = mysqli_fetch_assoc(mysqli_query($conn,
     "SELECT a.*, u.email, u.username 
-     FROM admins a 
-     JOIN users u ON a.user_id = u.id 
+     FROM admins a JOIN users u ON a.user_id = u.id 
      WHERE a.user_id = $user_id"));
 
-// যদি admin table এ data না থাকে
 if (!$admin) {
-    $admin = [
-        'full_name' => $_SESSION['username'],
-        'email' => '',
-        'username' => $_SESSION['username']
-    ];
+    $admin = ['full_name' => $_SESSION['username'], 'email' => '', 'username' => $_SESSION['username']];
 }
 
-// Overall Stats
-$total_patients = mysqli_fetch_assoc(mysqli_query($conn,
-    "SELECT COUNT(*) as t FROM patients"))['t'];
-$total_doctors = mysqli_fetch_assoc(mysqli_query($conn,
-    "SELECT COUNT(*) as t FROM doctors"))['t'];
-$total_appointments = mysqli_fetch_assoc(mysqli_query($conn,
-    "SELECT COUNT(*) as t FROM appointments"))['t'];
-$total_users = mysqli_fetch_assoc(mysqli_query($conn,
-    "SELECT COUNT(*) as t FROM users"))['t'];
+// Stats
+$total_patients = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as t FROM patients"))['t'];
+$total_doctors = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as t FROM doctors"))['t'];
+$total_appointments = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as t FROM appointments"))['t'];
+$total_users = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as t FROM users"))['t'];
+$total_posts = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as t FROM posts"))['t'];
 
-// Pagination for appointments
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$limit = 8;
-$offset = ($page - 1) * $limit;
-$total_pages = ceil($total_appointments / $limit);
+// Appointment stats
+$appt_stats = mysqli_fetch_assoc(mysqli_query($conn,
+    "SELECT SUM(status='pending') as pending,
+            SUM(status='approved') as approved,
+            SUM(status='completed') as completed,
+            SUM(status='cancelled') as cancelled
+     FROM appointments"));
 
-$appointments = mysqli_query($conn,
-    "SELECT a.*, 
-            p.full_name as patient_name,
-            d.full_name as doctor_name,
-            s.name as specialty
+// Today
+$today = date('Y-m-d');
+$today_appts = mysqli_fetch_assoc(mysqli_query($conn,
+    "SELECT COUNT(*) as c FROM appointments WHERE appointment_date = '$today'"))['c'];
+
+// Revenue (total fees from completed)
+$revenue = mysqli_fetch_assoc(mysqli_query($conn,
+    "SELECT SUM(d.consultation_fee) as total
      FROM appointments a
-     JOIN patients p ON a.patient_id = p.id
      JOIN doctors d ON a.doctor_id = d.id
-     JOIN specialties s ON d.specialty_id = s.id
-     ORDER BY a.created_at DESC
-     LIMIT $limit OFFSET $offset");
-
-// All Doctors list
-$doctors_list = mysqli_query($conn,
-    "SELECT d.*, u.email, u.phone, u.status,
-            s.name as specialty_name,
-            COUNT(a.id) as total_appointments,
-            AVG(r.rating) as avg_rating
-     FROM doctors d
-     JOIN users u ON d.user_id = u.id
-     JOIN specialties s ON d.specialty_id = s.id
-     LEFT JOIN appointments a ON a.doctor_id = d.id
-     LEFT JOIN ratings r ON r.doctor_id = d.id
-     GROUP BY d.id
-     ORDER BY d.created_at DESC");
-
-// All Patients list
-$patients_list = mysqli_query($conn,
-    "SELECT p.*, u.email, u.phone, u.status,
-            COUNT(a.id) as total_appointments
-     FROM patients p
-     JOIN users u ON p.user_id = u.id
-     LEFT JOIN appointments a ON a.patient_id = p.id
-     GROUP BY p.id
-     ORDER BY p.created_at DESC");
+     WHERE a.status = 'completed'"))['total'] ?? 0;
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - DocBook</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/fix.css">
     <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; background: #f0f4f8; }
 
-        .admin-wrapper {
+        .admin-layout {
             display: grid;
-            grid-template-columns: 250px 1fr;
+            grid-template-columns: 260px 1fr;
             min-height: 100vh;
         }
 
-        /* Sidebar */
+        /* ========== SIDEBAR ========== */
         .sidebar {
-            background: #1a1a2e;
+            background: linear-gradient(180deg, #0f0f1a, #1a1a35);
             color: white;
             padding: 25px 18px;
-            position: sticky;
-            top: 0;
+            position: fixed;
+            top: 0; left: 0;
+            width: 260px;
             height: 100vh;
             overflow-y: auto;
+            z-index: 100;
         }
 
-        .sidebar-logo {
-            text-align: center;
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             padding-bottom: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
             margin-bottom: 20px;
         }
 
-        .sidebar-logo h2 {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1a73e8;
+        .sidebar-brand .brand-icon {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
         }
 
-        .sidebar-logo p {
-            font-size: 11px;
-            opacity: 0.6;
-            margin-top: 3px;
+        .sidebar-brand h2 {
+            font-size: 18px; font-weight: 700;
+        }
+
+        .sidebar-brand h2 span { color: #8b5cf6; }
+        .sidebar-brand small {
+            display: block;
+            font-size: 10px;
+            color: rgba(255,255,255,0.4);
+            font-weight: 400;
         }
 
         .sidebar-section {
             font-size: 10px;
-            letter-spacing: 1px;
-            opacity: 0.5;
-            margin: 15px 0 8px 10px;
+            letter-spacing: 1.2px;
+            color: rgba(255,255,255,0.2);
+            margin: 20px 0 8px 12px;
             text-transform: uppercase;
         }
 
@@ -137,36 +123,67 @@ $patients_list = mysqli_query($conn,
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 10px 12px;
-            border-radius: 8px;
-            color: rgba(255,255,255,0.8);
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: rgba(255,255,255,0.55);
             font-size: 13px;
-            margin-bottom: 3px;
+            font-weight: 500;
+            text-decoration: none;
+            margin-bottom: 2px;
             transition: all 0.3s;
             cursor: pointer;
         }
 
         .sidebar-menu a:hover,
         .sidebar-menu a.active {
-            background: #1a73e8;
-            color: white;
+            background: rgba(139,92,246,0.12);
+            color: #a78bfa;
         }
 
-        .sidebar-menu a.logout {
-            background: rgba(220,53,69,0.2);
-            color: #ff6b6b;
+        .sidebar-menu a i {
+            font-size: 16px; width: 20px; text-align: center;
+        }
+
+        .sidebar-menu a .menu-badge {
+            margin-left: auto;
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .sidebar-menu a.logout-btn {
+            background: rgba(239,68,68,0.1);
+            color: #ef4444;
             margin-top: 15px;
         }
 
-        .sidebar-menu a.logout:hover {
-            background: #dc3545;
-            color: white;
+        .sidebar-menu a.logout-btn:hover {
+            background: #ef4444; color: white;
         }
 
-        /* Main */
-        .main-content {
+        .sidebar-admin-info {
+            padding: 15px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .sidebar-admin-info p {
+            font-size: 11px; color: rgba(255,255,255,0.4);
+        }
+
+        .sidebar-admin-info h4 {
+            font-size: 13px; color: white; font-weight: 600;
+        }
+
+        /* ========== MAIN ========== */
+        .main {
+            margin-left: 260px;
             padding: 25px 30px;
-            overflow-y: auto;
         }
 
         .topbar {
@@ -175,181 +192,142 @@ $patients_list = mysqli_query($conn,
             align-items: center;
             margin-bottom: 25px;
             background: white;
-            padding: 15px 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            padding: 16px 22px;
+            border-radius: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
         }
 
-        .topbar h2 {
-            font-size: 18px;
-            font-weight: 600;
-            color: #212529;
+        .topbar h2 { font-size: 18px; font-weight: 700; color: #0f0f1a; }
+        .topbar p { font-size: 12px; color: #6c757d; }
+
+        .topbar-right {
+            display: flex; align-items: center; gap: 10px;
         }
 
-        .topbar p {
-            font-size: 12px;
-            color: #6c757d;
-        }
-
-        .admin-badge {
-            background: #1a73e8;
+        .admin-tag {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
             color: white;
-            padding: 6px 14px;
+            padding: 6px 16px;
             border-radius: 20px;
             font-size: 12px;
-            font-weight: 500;
-        }
-
-        /* Tab System */
-        .tab-nav {
-            display: flex;
-            gap: 5px;
-            background: white;
-            padding: 8px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            margin-bottom: 20px;
-            overflow-x: auto;
-        }
-
-        .tab-btn {
-            padding: 9px 18px;
-            border: none;
-            border-radius: 8px;
-            background: transparent;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            color: #6c757d;
-            transition: all 0.3s;
-            white-space: nowrap;
+            font-weight: 600;
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        .tab-btn:hover {
-            background: #f0f4f8;
-            color: #1a73e8;
-        }
-
-        .tab-btn.active {
-            background: #1a73e8;
-            color: white;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Stats Grid */
+        /* Stats */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 14px;
+            margin-bottom: 25px;
         }
 
         .stat-card {
             background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            display: flex;
-            align-items: center;
-            gap: 15px;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
             transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
         }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 60px; height: 60px;
+            border-radius: 0 14px 0 50%;
+            opacity: 0.08;
+        }
+
+        .stat-card:nth-child(1)::after { background: #6366f1; }
+        .stat-card:nth-child(2)::after { background: #1a73e8; }
+        .stat-card:nth-child(3)::after { background: #198754; }
+        .stat-card:nth-child(4)::after { background: #ffc107; }
+        .stat-card:nth-child(5)::after { background: #e535ab; }
+        .stat-card:nth-child(6)::after { background: #ef4444; }
 
         .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
         }
 
-        .stat-card .icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 12px;
+        .stat-card .s-icon {
+            width: 42px; height: 42px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 18px;
+            margin-bottom: 10px;
         }
 
-        .stat-card .info h3 {
-            font-size: 26px;
-            font-weight: 700;
-            line-height: 1;
+        .stat-card h3 {
+            font-size: 24px; font-weight: 700; color: #0f0f1a; line-height: 1;
         }
 
-        .stat-card .info p {
-            font-size: 12px;
-            color: #6c757d;
-            margin-top: 4px;
+        .stat-card p {
+            font-size: 11px; color: #6c757d; margin-top: 3px;
         }
 
-        /* Table */
-        .data-card {
+        /* Tab System */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Content Card */
+        .content-card {
             background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
             margin-bottom: 20px;
         }
 
-        .data-card-header {
+        .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 18px;
         }
 
-        .data-card-header h3 {
-            font-size: 15px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .card-header h3 {
+            font-size: 15px; font-weight: 600; color: #0f0f1a;
+            display: flex; align-items: center; gap: 8px;
         }
 
+        .card-header-actions {
+            display: flex; gap: 8px; align-items: center;
+        }
+
+        /* Table */
         .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
+            width: 100%; border-collapse: collapse; font-size: 13px;
         }
 
         .data-table th {
-            background: #f8f9fa;
-            padding: 11px 13px;
+            background: #f8fafb;
+            padding: 10px 12px;
             text-align: left;
             font-weight: 600;
             color: #6c757d;
-            font-size: 12px;
+            font-size: 11px;
+            text-transform: uppercase;
         }
 
         .data-table td {
-            padding: 12px 13px;
+            padding: 12px;
             border-bottom: 1px solid #f0f4f8;
             vertical-align: middle;
         }
 
-        .data-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .data-table tr:hover td {
-            background: #f8f9fa;
-        }
+        .data-table tr:hover td { background: #fafbfc; }
 
         .badge {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
+            padding: 4px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 600;
         }
 
         .badge.pending { background: #fff3cd; color: #856404; }
@@ -359,159 +337,258 @@ $patients_list = mysqli_query($conn,
         .badge.active { background: #d4edda; color: #155724; }
         .badge.inactive { background: #f8d7da; color: #721c24; }
 
-        .action-btn {
+        .act-btn {
             padding: 5px 11px;
             border: none;
             border-radius: 6px;
             font-size: 11px;
             cursor: pointer;
             transition: all 0.3s;
-            margin: 2px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            margin: 1px;
         }
 
-        .btn-danger {
-            background: #f8d7da;
-            color: #721c24;
-        }
+        .act-danger { background: #fee2e2; color: #991b1b; }
+        .act-danger:hover { background: #ef4444; color: white; }
 
-        .btn-danger:hover {
-            background: #dc3545;
-            color: white;
-        }
+        .act-toggle { background: #e0e7ff; color: #3730a3; }
+        .act-toggle:hover { background: #6366f1; color: white; }
 
-        .btn-success {
-            background: #d4edda;
-            color: #155724;
-        }
+        .act-view { background: #dbeafe; color: #1e40af; }
+        .act-view:hover { background: #1a73e8; color: white; }
 
-        .btn-success:hover {
-            background: #198754;
-            color: white;
-        }
-
-        .btn-primary {
-            background: #e8f0fe;
-            color: #1a73e8;
-        }
-
-        .btn-primary:hover {
-            background: #1a73e8;
-            color: white;
-        }
-
-        /* Print Button */
-        .btn-print {
-            background: #198754;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            cursor: pointer;
+        /* Search */
+        .search-box {
             display: flex;
             align-items: center;
             gap: 6px;
-            transition: all 0.3s;
-        }
-
-        .btn-print:hover {
-            background: #0d6e3f;
-        }
-
-        /* Pagination */
-        .pagination {
-            display: flex;
-            gap: 6px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .pagination a {
-            padding: 7px 12px;
+            background: #f8fafb;
+            border: 1.5px solid #e0e5ec;
             border-radius: 8px;
-            background: #f0f4f8;
-            color: #1a73e8;
-            font-size: 13px;
+            padding: 6px 12px;
+        }
+
+        .search-box i { color: #9ca3af; font-size: 14px; }
+
+        .search-box input {
+            border: none; background: transparent;
+            outline: none; font-size: 12px;
+            font-family: 'Poppins', sans-serif;
+            width: 180px;
+        }
+
+        /* Print */
+        .btn-print {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #198754;
+            color: white;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
             transition: all 0.3s;
         }
 
-        .pagination a.active,
-        .pagination a:hover {
-            background: #1a73e8;
-            color: white;
-        }
+        .btn-print:hover { background: #0d6e3f; }
 
-        /* Add Doctor Form */
+        /* Form */
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
         }
 
-        /* Print Styles (Feature #20) */
-        @media print {
-            .sidebar, .topbar, .tab-nav,
-            .action-btn, .btn-print,
-            .pagination { display: none !important; }
+        .form-grid .full-width { grid-column: 1 / -1; }
 
-            .admin-wrapper {
-                grid-template-columns: 1fr !important;
-            }
-
-            .main-content {
-                padding: 0 !important;
-            }
-
-            .tab-content {
-                display: block !important;
-            }
-
-            .data-card {
-                box-shadow: none !important;
-                border: 1px solid #dee2e6;
-            }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
         }
 
-        /* Search Box */
-        .search-box {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #f0f4f8;
-            border-radius: 8px;
-            padding: 8px 14px;
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid #e0e5ec;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
             font-size: 13px;
-        }
-
-        .search-box input {
-            border: none;
-            background: transparent;
             outline: none;
-            font-size: 13px;
-            width: 200px;
+            transition: all 0.3s;
         }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 11px 28px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99,102,241,0.3);
+        }
+
+        /* Report Cards */
+        .report-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .report-box {
+            background: #f8fafb;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e8ecf0;
+        }
+
+        .report-box h4 {
+            font-size: 14px; font-weight: 600; margin-bottom: 12px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .report-table {
+            width: 100%; font-size: 13px;
+        }
+
+        .report-table td {
+            padding: 8px 0;
+            border-bottom: 1px solid #e8ecf0;
+        }
+
+        .report-table td:last-child {
+            text-align: right; font-weight: 600;
+        }
+
+        /* Quick Actions */
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 25px;
+        }
+
+        .quick-card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #e8ecf0;
+        }
+
+        .quick-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            border-color: #6366f1;
+        }
+
+        .quick-card i {
+            font-size: 28px; margin-bottom: 8px;
+        }
+
+        .quick-card h4 { font-size: 13px; font-weight: 600; }
+        .quick-card p { font-size: 11px; color: #6c757d; }
+
+        /* Pagination */
+        .pagination {
+            display: flex; gap: 6px; justify-content: center; margin-top: 15px;
+        }
+
+        .pagination a {
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: #f0f4f8;
+            color: #6366f1;
+            font-size: 12px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .pagination a.active, .pagination a:hover {
+            background: #6366f1; color: white;
+        }
+
+        /* Empty */
+        .empty-state {
+            text-align: center; padding: 40px; color: #6c757d;
+        }
+
+        .empty-state i { font-size: 48px; color: #ddd; margin-bottom: 12px; }
+        .empty-state h4 { font-size: 16px; font-weight: 600; color: #333; }
+
+        /* Print Styles */
+        @media print {
+            .sidebar, .topbar, .card-header-actions,
+            .act-btn, .btn-print, .pagination,
+            .sidebar-menu, .quick-grid { display: none !important; }
+            .admin-layout { grid-template-columns: 1fr !important; }
+            .main { margin-left: 0 !important; padding: 10px !important; }
+            .tab-content { display: block !important; }
+            .content-card { box-shadow: none !important; border: 1px solid #ddd; }
+        }
+        .admin-layout { display: flex !important; }
+.sidebar { width: 230px !important; }
+.main { margin-left: 230px !important; width: calc(100% - 230px) !important; }
+
+@media (max-width: 768px) {
+    .admin-layout { display: block !important; }
+    .sidebar { display: none !important; }
+    .main { margin-left: 0 !important; width: 100% !important; }
+}
     </style>
 </head>
 <body>
 
-<div class="admin-wrapper">
+<div class="admin-layout">
 
-    <!-- SIDEBAR -->
+    <!-- ========== SIDEBAR ========== -->
     <aside class="sidebar">
-        <div class="sidebar-logo">
-            <h2><i class="bi bi-hospital"></i> DocBook</h2>
-            <p>Admin Control Panel</p>
+        <div class="sidebar-brand">
+            <div class="brand-icon"><i class="bi bi-shield-check"></i></div>
+            <div>
+                <h2>Doc<span>Book</span></h2>
+                <small>Admin Control Panel</small>
+            </div>
         </div>
 
-        <div class="sidebar-section">Main</div>
+        <div class="sidebar-section">Dashboard</div>
         <nav class="sidebar-menu">
             <a onclick="switchTab('overview')" class="active" id="nav-overview">
-                <i class="bi bi-grid"></i> Overview
+                <i class="bi bi-grid-1x2"></i> Overview
             </a>
 
             <div class="sidebar-section">Management</div>
             <a onclick="switchTab('appointments')" id="nav-appointments">
                 <i class="bi bi-calendar-check"></i> Appointments
+                <?php if(($appt_stats['pending'] ?? 0) > 0): ?>
+                    <span class="menu-badge"><?= $appt_stats['pending'] ?></span>
+                <?php endif; ?>
             </a>
             <a onclick="switchTab('doctors')" id="nav-doctors">
                 <i class="bi bi-person-badge"></i> Doctors
@@ -523,450 +600,252 @@ $patients_list = mysqli_query($conn,
                 <i class="bi bi-person-plus"></i> Add Doctor
             </a>
 
-            <div class="sidebar-section">Reports</div>
+            <div class="sidebar-section">Analytics</div>
             <a onclick="switchTab('reports')" id="nav-reports">
-                <i class="bi bi-file-earmark-bar-graph"></i> Reports
+                <i class="bi bi-bar-chart-line"></i> Reports
             </a>
 
-            <a href="../php/auth/logout.php" class="logout">
+            <a href="../php/auth/logout.php" class="logout-btn">
                 <i class="bi bi-box-arrow-right"></i> Logout
             </a>
         </nav>
+
+        <div class="sidebar-admin-info">
+            <p>Logged in as</p>
+            <h4><i class="bi bi-person-circle"></i> <?= htmlspecialchars($admin['full_name']) ?></h4>
+        </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
-    <div class="main-content">
+    <!-- ========== MAIN ========== -->
+    <div class="main">
 
         <!-- Topbar -->
-        <div class="topbar">
+        <div class="topbar dash-topbar">
             <div>
-                <h2>Admin Dashboard</h2>
-                <p><?= date('l, d F Y') ?> &nbsp;|&nbsp;
-                   Welcome, <?= htmlspecialchars($admin['full_name']) ?>
-                </p>
+                <h2>🛡️ Admin Dashboard</h2>
+                <p><?= date('l, d F Y') ?> | Today's Appointments: <?= $today_appts ?></p>
             </div>
-            <span class="admin-badge">
-                <i class="bi bi-shield-check"></i> Admin
-            </span>
+            <div class="topbar-right">
+                <span class="admin-tag">
+                    <i class="bi bi-shield-check"></i> Administrator
+                </span>
+            </div>
         </div>
 
-        <!-- Tab Navigation -->
-        <div class="tab-nav">
-            <button class="tab-btn active" onclick="switchTab('overview')" id="tab-overview">
-                <i class="bi bi-grid"></i> Overview
-            </button>
-            <button class="tab-btn" onclick="switchTab('appointments')" id="tab-appointments">
-                <i class="bi bi-calendar-check"></i> Appointments
-            </button>
-            <button class="tab-btn" onclick="switchTab('doctors')" id="tab-doctors">
-                <i class="bi bi-person-badge"></i> Doctors
-            </button>
-            <button class="tab-btn" onclick="switchTab('patients')" id="tab-patients">
-                <i class="bi bi-people"></i> Patients
-            </button>
-            <button class="tab-btn" onclick="switchTab('add-doctor')" id="tab-add-doctor">
-                <i class="bi bi-person-plus"></i> Add Doctor
-            </button>
-            <button class="tab-btn" onclick="switchTab('reports')" id="tab-reports">
-                <i class="bi bi-file-earmark-bar-graph"></i> Reports
-            </button>
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="s-icon" style="background:#ede9fe; color:#6366f1;">
+                    <i class="bi bi-people"></i>
+                </div>
+                <h3><?= $total_users ?></h3>
+                <p>Total Users</p>
+            </div>
+            <div class="stat-card">
+                <div class="s-icon" style="background:#dbeafe; color:#1a73e8;">
+                    <i class="bi bi-person-badge"></i>
+                </div>
+                <h3><?= $total_doctors ?></h3>
+                <p>Doctors</p>
+            </div>
+            <div class="stat-card">
+                <div class="s-icon" style="background:#d1fae5; color:#198754;">
+                    <i class="bi bi-person-heart"></i>
+                </div>
+                <h3><?= $total_patients ?></h3>
+                <p>Patients</p>
+            </div>
+            <div class="stat-card">
+                <div class="s-icon" style="background:#fef3c7; color:#f59e0b;">
+                    <i class="bi bi-calendar-check"></i>
+                </div>
+                <h3><?= $total_appointments ?></h3>
+                <p>Appointments</p>
+            </div>
+            <div class="stat-card">
+                <div class="s-icon" style="background:#fce7f3; color:#e535ab;">
+                    <i class="bi bi-newspaper"></i>
+                </div>
+                <h3><?= $total_posts ?></h3>
+                <p>Posts</p>
+            </div>
+            <div class="stat-card">
+                <div class="s-icon" style="background:#fee2e2; color:#ef4444;">
+                    <i class="bi bi-currency-dollar"></i>
+                </div>
+                <h3>৳<?= number_format($revenue) ?></h3>
+                <p>Revenue</p>
+            </div>
         </div>
 
         <!-- ======================== -->
-        <!-- TAB 1: OVERVIEW -->
+        <!-- TAB: OVERVIEW -->
         <!-- ======================== -->
         <div class="tab-content active" id="content-overview">
-
-            <div class="stats-grid">
-                <div class="stat-card" id="sc1">
-                    <div class="icon" style="background:#e8f0fe;">
-                        <i class="bi bi-people" style="color:#1a73e8;"></i>
-                    </div>
-                    <div class="info">
-                        <h3><?= $total_patients ?></h3>
-                        <p>Total Patients</p>
-                    </div>
+            <div class="quick-grid">
+                <div class="quick-card" onclick="switchTab('appointments')">
+                    <i class="bi bi-calendar-check" style="color:#6366f1;"></i>
+                    <h4>Appointments</h4>
+                    <p>Manage all bookings</p>
                 </div>
-                <div class="stat-card" id="sc2">
-                    <div class="icon" style="background:#d4edda;">
-                        <i class="bi bi-person-badge" style="color:#198754;"></i>
-                    </div>
-                    <div class="info">
-                        <h3><?= $total_doctors ?></h3>
-                        <p>Total Doctors</p>
-                    </div>
+                <div class="quick-card" onclick="switchTab('doctors')">
+                    <i class="bi bi-person-badge" style="color:#1a73e8;"></i>
+                    <h4>Doctors</h4>
+                    <p>View & manage doctors</p>
                 </div>
-                <div class="stat-card" id="sc3">
-                    <div class="icon" style="background:#fff3cd;">
-                        <i class="bi bi-calendar-check" style="color:#ffc107;"></i>
-                    </div>
-                    <div class="info">
-                        <h3><?= $total_appointments ?></h3>
-                        <p>Total Appointments</p>
-                    </div>
+                <div class="quick-card" onclick="switchTab('patients')">
+                    <i class="bi bi-people" style="color:#198754;"></i>
+                    <h4>Patients</h4>
+                    <p>View all patients</p>
                 </div>
-                <div class="stat-card" id="sc4">
-                    <div class="icon" style="background:#f8d7da;">
-                        <i class="bi bi-person-circle" style="color:#dc3545;"></i>
-                    </div>
-                    <div class="info">
-                        <h3><?= $total_users ?></h3>
-                        <p>Total Users</p>
-                    </div>
+                <div class="quick-card" onclick="switchTab('reports')">
+                    <i class="bi bi-bar-chart-line" style="color:#e535ab;"></i>
+                    <h4>Reports</h4>
+                    <p>View system reports</p>
                 </div>
             </div>
 
-            <!-- Recent Appointments -->
-            <div class="data-card">
-                <div class="data-card-header">
-                    <h3>
-                        <i class="bi bi-clock-history" style="color:#1a73e8;"></i>
-                        Recent Appointments
-                    </h3>
+            <div class="content-card">
+                <div class="card-header">
+                    <h3><i class="bi bi-clock-history" style="color:#6366f1;"></i> Recent Appointments</h3>
                 </div>
-                <table class="data-table" id="recent-table">
-                    <thead>
-                        <tr>
-                            <th>Patient</th>
-                            <th>Doctor</th>
-                            <th>Specialty</th>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="recent-tbody">
-                        <!-- Load via AJAX -->
-                    </tbody>
-                </table>
+                <div id="overview-recent"></div>
             </div>
         </div>
 
         <!-- ======================== -->
-        <!-- TAB 2: APPOINTMENTS -->
+        <!-- TAB: APPOINTMENTS -->
         <!-- ======================== -->
         <div class="tab-content" id="content-appointments">
-            <div class="data-card">
-                <div class="data-card-header">
-                    <h3>
-                        <i class="bi bi-calendar-check" style="color:#1a73e8;"></i>
-                        All Appointments
-                    </h3>
-                    <button class="btn-print" onclick="printSection('appointments-print')">
-                        <i class="bi bi-printer"></i> Print Report
-                    </button>
+            <div class="content-card">
+                <div class="card-header">
+                    <h3><i class="bi bi-calendar-check" style="color:#6366f1;"></i> All Appointments</h3>
+                    <div class="card-header-actions">
+                        <select id="apptFilter" onchange="loadAdminAppointments()" style="padding:6px 12px; border-radius:8px; border:1.5px solid #ddd; font-size:12px; font-family:Poppins;">
+                            <option value="all">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                        <button class="btn-print" onclick="printSection('appt-print')">
+                            <i class="bi bi-printer"></i> Print
+                        </button>
+                    </div>
                 </div>
-
-                <div id="appointments-print">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Appt No</th>
-                                <th>Patient</th>
-                                <th>Doctor</th>
-                                <th>Specialty</th>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Status</th>
-                                <th class="no-print">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php
-                        $sl = $offset + 1;
-                        mysqli_data_seek($appointments, 0);
-                        while($appt = mysqli_fetch_assoc($appointments)):
-                        ?>
-                            <tr id="admin-appt-<?= $appt['id'] ?>">
-                                <td><?= $sl++ ?></td>
-                                <td style="font-size:11px; color:#6c757d;">
-                                    <?= $appt['appointment_no'] ?>
-                                </td>
-                                <td><?= htmlspecialchars($appt['patient_name']) ?></td>
-                                <td>Dr. <?= htmlspecialchars($appt['doctor_name']) ?></td>
-                                <td><?= htmlspecialchars($appt['specialty']) ?></td>
-                                <td><?= date('d M Y', strtotime($appt['appointment_date'])) ?></td>
-                                <td><?= date('h:i A', strtotime($appt['appointment_time'])) ?></td>
-                                <td>
-                                    <span class="badge <?= $appt['status'] ?>">
-                                        <?= ucfirst($appt['status']) ?>
-                                    </span>
-                                </td>
-                                <td class="no-print">
-                                    <button class="action-btn btn-danger"
-                                        onclick="deleteAppointment(<?= $appt['id'] ?>)">
-                                        <i class="bi bi-trash"></i> Delete
-                                    </button>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Pagination -->
-                <div class="pagination">
-                    <?php for($i=1; $i<=$total_pages; $i++): ?>
-                    <a href="?page=<?= $i ?>"
-                       class="<?= $page == $i ? 'active' : '' ?>">
-                        <?= $i ?>
-                    </a>
-                    <?php endfor; ?>
+                <div id="appt-print">
+                    <div id="admin-appts-table"></div>
                 </div>
             </div>
         </div>
 
         <!-- ======================== -->
-        <!-- TAB 3: DOCTORS -->
+        <!-- TAB: DOCTORS -->
         <!-- ======================== -->
         <div class="tab-content" id="content-doctors">
-            <div class="data-card">
-                <div class="data-card-header">
-                    <h3>
-                        <i class="bi bi-person-badge" style="color:#198754;"></i>
-                        All Doctors
-                    </h3>
-                    <div style="display:flex; gap:10px;">
+            <div class="content-card">
+                <div class="card-header">
+                    <h3><i class="bi bi-person-badge" style="color:#1a73e8;"></i> All Doctors</h3>
+                    <div class="card-header-actions">
                         <div class="search-box">
-                            <i class="bi bi-search" style="color:#6c757d;"></i>
-                            <input type="text"
-                                   id="doctorSearch"
-                                   placeholder="Search doctor..."
-                                   onkeyup="searchTable('doctorTable', this.value)">
+                            <i class="bi bi-search"></i>
+                            <input type="text" id="docSearch" placeholder="Search doctor..." onkeyup="searchTable('doc-table', this.value)">
                         </div>
-                        <button class="btn-print" onclick="printSection('doctors-print')">
+                        <button class="btn-print" onclick="printSection('doc-print')">
                             <i class="bi bi-printer"></i> Print
                         </button>
                     </div>
                 </div>
-
-                <div id="doctors-print">
-                    <table class="data-table" id="doctorTable">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Name</th>
-                                <th>Specialty</th>
-                                <th>Qualification</th>
-                                <th>Fee</th>
-                                <th>Appointments</th>
-                                <th>Avg Rating</th>
-                                <th>Status</th>
-                                <th class="no-print">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php
-                        $sl = 1;
-                        while($doc = mysqli_fetch_assoc($doctors_list)):
-                        ?>
-                            <tr id="doc-row-<?= $doc['id'] ?>">
-                                <td><?= $sl++ ?></td>
-                                <td>
-                                    <strong>Dr. <?= htmlspecialchars($doc['full_name']) ?></strong>
-                                    <br>
-                                    <small style="color:#6c757d;">
-                                        <?= htmlspecialchars($doc['doctor_code']) ?>
-                                    </small>
-                                </td>
-                                <td><?= htmlspecialchars($doc['specialty_name']) ?></td>
-                                <td><?= htmlspecialchars($doc['qualification'] ?? '-') ?></td>
-                                <td>৳<?= number_format($doc['consultation_fee'], 0) ?></td>
-                                <td><?= $doc['total_appointments'] ?></td>
-                                <td>
-                                    <?php
-                                    $avg = round($doc['avg_rating'] ?? 0, 1);
-                                    echo $avg > 0 ? "⭐ $avg" : '-';
-                                    ?>
-                                </td>
-                                <td>
-                                    <span class="badge <?= $doc['status'] ?>">
-                                        <?= ucfirst($doc['status']) ?>
-                                    </span>
-                                </td>
-                                <td class="no-print">
-                                    <button class="action-btn btn-danger"
-                                        onclick="deleteUser(<?= $doc['user_id'] ?>, 'doc-row-<?= $doc['id'] ?>')">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                    <button class="action-btn btn-primary"
-                                        onclick="toggleStatus(<?= $doc['user_id'] ?>, '<?= $doc['status'] ?>')">
-                                        <i class="bi bi-toggle-on"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                        </tbody>
-                    </table>
+                <div id="doc-print">
+                    <div id="admin-docs-table"></div>
                 </div>
             </div>
         </div>
 
         <!-- ======================== -->
-        <!-- TAB 4: PATIENTS -->
+        <!-- TAB: PATIENTS -->
         <!-- ======================== -->
         <div class="tab-content" id="content-patients">
-            <div class="data-card">
-                <div class="data-card-header">
-                    <h3>
-                        <i class="bi bi-people" style="color:#1a73e8;"></i>
-                        All Patients
-                    </h3>
-                    <div style="display:flex; gap:10px;">
+            <div class="content-card">
+                <div class="card-header">
+                    <h3><i class="bi bi-people" style="color:#198754;"></i> All Patients</h3>
+                    <div class="card-header-actions">
                         <div class="search-box">
-                            <i class="bi bi-search" style="color:#6c757d;"></i>
-                            <input type="text"
-                                   placeholder="Search patient..."
-                                   onkeyup="searchTable('patientTable', this.value)">
+                            <i class="bi bi-search"></i>
+                            <input type="text" placeholder="Search patient..." onkeyup="searchTable('pat-table', this.value)">
                         </div>
-                        <button class="btn-print" onclick="printSection('patients-print')">
+                        <button class="btn-print" onclick="printSection('pat-print')">
                             <i class="bi bi-printer"></i> Print
                         </button>
                     </div>
                 </div>
-
-                <div id="patients-print">
-                    <table class="data-table" id="patientTable">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Name</th>
-                                <th>Patient Code</th>
-                                <th>Gender</th>
-                                <th>Phone</th>
-                                <th>Appointments</th>
-                                <th>Status</th>
-                                <th class="no-print">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php
-                        $sl = 1;
-                        while($pat = mysqli_fetch_assoc($patients_list)):
-                        ?>
-                            <tr id="pat-row-<?= $pat['id'] ?>">
-                                <td><?= $sl++ ?></td>
-                                <td>
-                                    <strong><?= htmlspecialchars($pat['full_name']) ?></strong>
-                                </td>
-                                <td style="font-size:12px; color:#6c757d;">
-                                    <?= $pat['patient_code'] ?>
-                                </td>
-                                <td><?= ucfirst($pat['gender']) ?></td>
-                                <td><?= $pat['phone'] ?></td>
-                                <td><?= $pat['total_appointments'] ?></td>
-                                <td>
-                                    <span class="badge <?= $pat['status'] ?>">
-                                        <?= ucfirst($pat['status']) ?>
-                                    </span>
-                                </td>
-                                <td class="no-print">
-                                    <button class="action-btn btn-danger"
-                                        onclick="deleteUser(<?= $pat['user_id'] ?>, 'pat-row-<?= $pat['id'] ?>')">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                        </tbody>
-                    </table>
+                <div id="pat-print">
+                    <div id="admin-pats-table"></div>
                 </div>
             </div>
         </div>
 
         <!-- ======================== -->
-        <!-- TAB 5: ADD DOCTOR -->
+        <!-- TAB: ADD DOCTOR -->
         <!-- ======================== -->
         <div class="tab-content" id="content-add-doctor">
-            <div class="data-card">
-                <div class="data-card-header">
-                    <h3>
-                        <i class="bi bi-person-plus" style="color:#1a73e8;"></i>
-                        Add New Doctor
-                    </h3>
+            <div class="content-card">
+                <div class="card-header">
+                    <h3><i class="bi bi-person-plus" style="color:#6366f1;"></i> Add New Doctor</h3>
                 </div>
 
-                <form action="../php/admin/add-doctor.php" method="POST">
+                <form action="../php/admin/add-doctor.php" method="POST" id="addDoctorForm">
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Full Name</label>
-                            <input type="text" name="full_name"
-                                   placeholder="Doctor full name" required>
+                            <input type="text" name="full_name" placeholder="Doctor's full name" required>
                         </div>
                         <div class="form-group">
                             <label>Username</label>
-                            <input type="text" name="username"
-                                   placeholder="Username" required>
-                            <small id="admin-user-status"
-                                   style="font-size:12px;"></small>
+                            <input type="text" name="username" id="adminUsername" placeholder="Username" required>
+                            <small id="admin-user-check" style="font-size:11px;"></small>
                         </div>
                         <div class="form-group">
                             <label>Email</label>
-                            <input type="email" name="email"
-                                   placeholder="Email" required>
+                            <input type="email" name="email" placeholder="Email" required>
                         </div>
                         <div class="form-group">
                             <label>Phone</label>
-                            <input type="text" name="phone"
-                                   placeholder="Phone number" required>
+                            <input type="text" name="phone" placeholder="01XXXXXXXXX" required>
                         </div>
                         <div class="form-group">
                             <label>Password</label>
-                            <input type="password" name="password"
-                                   placeholder="Password" required>
+                            <input type="password" name="password" placeholder="Password" required>
                         </div>
                         <div class="form-group">
                             <label>Gender</label>
                             <select name="gender" required>
                                 <option value="male">Male</option>
                                 <option value="female">Female</option>
-                                <option value="other">Other</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label>Specialty</label>
-                            <select name="specialty_id" required>
-                                <?php
-                                $specs = mysqli_query($conn, "SELECT * FROM specialties");
-                                while($s = mysqli_fetch_assoc($specs)):
-                                ?>
-                                <option value="<?= $s['id'] ?>">
-                                    <?= htmlspecialchars($s['name']) ?>
-                                </option>
-                                <?php endwhile; ?>
-                            </select>
+                            <select name="specialty_id" id="adminSpecialty" required></select>
                         </div>
                         <div class="form-group">
                             <label>Qualification</label>
-                            <input type="text" name="qualification"
-                                   placeholder="e.g. MBBS, MD">
+                            <input type="text" name="qualification" placeholder="e.g. MBBS, FCPS">
                         </div>
                         <div class="form-group">
                             <label>Experience (Years)</label>
-                            <input type="number" name="experience_years"
-                                   value="0" min="0">
+                            <input type="number" name="experience_years" value="0" min="0">
                         </div>
                         <div class="form-group">
                             <label>Consultation Fee (৳)</label>
-                            <input type="number" name="consultation_fee"
-                                   value="500" min="0">
+                            <input type="number" name="consultation_fee" value="500" min="0">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Bio</label>
+                            <textarea name="bio" rows="3" placeholder="Short bio..."></textarea>
                         </div>
                     </div>
-
-                    <div class="form-group" style="margin-top:10px;">
-                        <label>Bio</label>
-                        <textarea name="bio" rows="3"
-                            style="width:100%; padding:10px; border-radius:8px;
-                                   border:1.5px solid #ddd; font-family:inherit;"
-                            placeholder="Short bio about the doctor..."></textarea>
-                    </div>
-
-                    <button type="submit"
-                        style="background:#1a73e8; color:white; border:none;
-                               padding:11px 28px; border-radius:8px;
-                               cursor:pointer; margin-top:15px; font-size:14px;
-                               font-weight:500;">
+                    <button type="submit" class="btn-submit">
                         <i class="bi bi-plus-circle"></i> Add Doctor
                     </button>
                 </form>
@@ -974,68 +853,37 @@ $patients_list = mysqli_query($conn,
         </div>
 
         <!-- ======================== -->
-        <!-- TAB 6: REPORTS -->
+        <!-- TAB: REPORTS -->
         <!-- ======================== -->
         <div class="tab-content" id="content-reports">
-            <div class="data-card">
-                <div class="data-card-header">
-                    <h3>
-                        <i class="bi bi-file-earmark-bar-graph"
-                           style="color:#1a73e8;"></i>
-                        System Reports
-                    </h3>
+            <div class="content-card">
+                <div class="card-header">
+                    <h3><i class="bi bi-bar-chart-line" style="color:#e535ab;"></i> System Reports</h3>
                     <button class="btn-print" onclick="window.print()">
                         <i class="bi bi-printer"></i> Print Full Report
                     </button>
                 </div>
 
-                <!-- Summary Report -->
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-                    <div style="background:#f8f9fa; border-radius:10px; padding:20px;">
-                        <h4 style="font-size:14px; margin-bottom:15px; color:#1a73e8;">
-                            📊 Appointment Summary
-                        </h4>
-                        <table class="data-table">
-                            <tr>
-                                <td>Total Appointments</td>
-                                <td><strong><?= $total_appointments ?></strong></td>
-                            </tr>
-                            <tr>
-                                <td>Pending</td>
-                                <td id="r-pending">Loading...</td>
-                            </tr>
-                            <tr>
-                                <td>Approved</td>
-                                <td id="r-approved">Loading...</td>
-                            </tr>
-                            <tr>
-                                <td>Completed</td>
-                                <td id="r-completed">Loading...</td>
-                            </tr>
-                            <tr>
-                                <td>Cancelled</td>
-                                <td id="r-cancelled">Loading...</td>
-                            </tr>
+                <div class="report-grid">
+                    <div class="report-box">
+                        <h4><i class="bi bi-calendar-check" style="color:#6366f1;"></i> Appointment Summary</h4>
+                        <table class="report-table">
+                            <tr><td>Total Appointments</td><td><?= $total_appointments ?></td></tr>
+                            <tr><td>Pending</td><td style="color:#f59e0b;"><?= $appt_stats['pending'] ?? 0 ?></td></tr>
+                            <tr><td>Approved</td><td style="color:#1a73e8;"><?= $appt_stats['approved'] ?? 0 ?></td></tr>
+                            <tr><td>Completed</td><td style="color:#198754;"><?= $appt_stats['completed'] ?? 0 ?></td></tr>
+                            <tr><td>Cancelled</td><td style="color:#ef4444;"><?= $appt_stats['cancelled'] ?? 0 ?></td></tr>
                         </table>
                     </div>
 
-                    <div style="background:#f8f9fa; border-radius:10px; padding:20px;">
-                        <h4 style="font-size:14px; margin-bottom:15px; color:#198754;">
-                            👥 User Summary
-                        </h4>
-                        <table class="data-table">
-                            <tr>
-                                <td>Total Users</td>
-                                <td><strong><?= $total_users ?></strong></td>
-                            </tr>
-                            <tr>
-                                <td>Total Doctors</td>
-                                <td><strong><?= $total_doctors ?></strong></td>
-                            </tr>
-                            <tr>
-                                <td>Total Patients</td>
-                                <td><strong><?= $total_patients ?></strong></td>
-                            </tr>
+                    <div class="report-box">
+                        <h4><i class="bi bi-people" style="color:#198754;"></i> User Summary</h4>
+                        <table class="report-table">
+                            <tr><td>Total Users</td><td><?= $total_users ?></td></tr>
+                            <tr><td>Doctors</td><td><?= $total_doctors ?></td></tr>
+                            <tr><td>Patients</td><td><?= $total_patients ?></td></tr>
+                            <tr><td>Total Posts</td><td><?= $total_posts ?></td></tr>
+                            <tr><td>Total Revenue</td><td style="color:#198754;">৳<?= number_format($revenue) ?></td></tr>
                         </table>
                     </div>
                 </div>
@@ -1045,226 +893,259 @@ $patients_list = mysqli_query($conn,
     </div>
 </div>
 
+<!-- Scripts -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script>
-// ================================
-// GSAP Animations
-// ================================
-gsap.from(".stat-card", {
-    duration: 0.5,
-    y: 25,
-    opacity: 0,
-    stagger: 0.1,
-    ease: "power3.out"
-});
-
-gsap.from(".data-card", {
-    duration: 0.5,
-    y: 15,
-    opacity: 0,
-    delay: 0.3,
-    ease: "power3.out"
-});
 
 // ================================
-// Tab System
+// TAB SWITCHING
 // ================================
-function switchTab(tabName) {
-    // Hide all content
-    document.querySelectorAll('.tab-content').forEach(c => {
-        c.classList.remove('active');
-    });
+function switchTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
 
-    // Remove active from all buttons
-    document.querySelectorAll('.tab-btn').forEach(b => {
-        b.classList.remove('active');
-    });
+    document.getElementById(`content-${tab}`).classList.add('active');
+    let nav = document.getElementById(`nav-${tab}`);
+    if(nav) nav.classList.add('active');
 
-    document.querySelectorAll('.sidebar-menu a').forEach(a => {
-        a.classList.remove('active');
-    });
+    gsap.from(`#content-${tab}`, { duration: 0.4, opacity: 0, y: 15, ease: "power2.out" });
 
-    // Show target
-    document.getElementById(`content-${tabName}`).classList.add('active');
-    document.getElementById(`tab-${tabName}`).classList.add('active');
-    document.getElementById(`nav-${tabName}`).classList.add('active');
-
-    // GSAP animation
-    gsap.from(`#content-${tabName}`, {
-        duration: 0.4,
-        opacity: 0,
-        y: 15,
-        ease: "power2.out"
-    });
+    if(tab === 'appointments') loadAdminAppointments();
+    if(tab === 'doctors') loadAdminDoctors();
+    if(tab === 'patients') loadAdminPatients();
+    if(tab === 'add-doctor') loadAdminSpecialties();
 }
 
 // ================================
-// Load Recent Appointments (AJAX)
+// LOAD APPOINTMENTS
 // ================================
-function loadRecentAppointments() {
-    fetch('../php/admin/get-recent.php')
+function loadAdminAppointments() {
+    let status = document.getElementById('apptFilter').value;
+    fetch(`../php/admin/get-appointments.php?status=${status}`)
         .then(res => res.json())
         .then(data => {
-            let tbody = document.getElementById('recent-tbody');
-            tbody.innerHTML = '';
-            data.forEach(a => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${a.patient_name}</td>
-                        <td>Dr. ${a.doctor_name}</td>
-                        <td>${a.specialty}</td>
-                        <td>${a.appointment_date}</td>
-                        <td>${a.appointment_time}</td>
-                        <td>
-                            <span class="badge ${a.status}">
-                                ${a.status.charAt(0).toUpperCase() + a.status.slice(1)}
-                            </span>
-                        </td>
-                    </tr>`;
+            let el = document.getElementById('admin-appts-table');
+            if(data.length === 0) {
+                el.innerHTML = '<div class="empty-state"><i class="bi bi-calendar-x"></i><h4>No Appointments</h4></div>';
+                return;
+            }
+            let html = '<table class="data-table"><thead><tr><th>#</th><th>Appt No</th><th>Patient</th><th>Doctor</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+            data.forEach((a, i) => {
+                html += `<tr id="admin-row-${a.id}">
+                    <td>${i+1}</td>
+                    <td style="font-size:11px; color:#6c757d;">${a.appointment_no}</td>
+                    <td>${a.patient_name}</td>
+                    <td>Dr. ${a.doctor_name}</td>
+                    <td>${a.appointment_date}</td>
+                    <td>${a.appointment_time}</td>
+                    <td><span class="badge ${a.status}">${a.status.charAt(0).toUpperCase()+a.status.slice(1)}</span></td>
+                    <td><button class="act-btn act-danger" onclick="deleteAppt(${a.id})"><i class="bi bi-trash"></i></button></td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            el.innerHTML = html;
+        });
+}
+
+// ================================
+// LOAD DOCTORS
+// ================================
+function loadAdminDoctors() {
+    fetch('../php/admin/get-doctors-list.php')
+        .then(res => res.json())
+        .then(data => {
+            let el = document.getElementById('admin-docs-table');
+            if(data.length === 0) {
+                el.innerHTML = '<div class="empty-state"><i class="bi bi-person-x"></i><h4>No Doctors</h4></div>';
+                return;
+            }
+            let html = '<table class="data-table" id="doc-table"><thead><tr><th>#</th><th>Name</th><th>Specialty</th><th>Fee</th><th>Appointments</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+            data.forEach((d, i) => {
+                html += `<tr id="doc-row-${d.user_id}">
+                    <td>${i+1}</td>
+                    <td><strong>Dr. ${d.full_name}</strong><br><small style="color:#6c757d;">${d.doctor_code}</small></td>
+                    <td>${d.specialty_name}</td>
+                    <td>৳${d.consultation_fee}</td>
+                    <td>${d.total_appts}</td>
+                    <td>${d.avg_rating > 0 ? '⭐ '+d.avg_rating : '-'}</td>
+                    <td><span class="badge ${d.status}">${d.status.charAt(0).toUpperCase()+d.status.slice(1)}</span></td>
+                    <td>
+                        <button class="act-btn act-toggle" onclick="toggleUser(${d.user_id},'${d.status}')"><i class="bi bi-toggle-on"></i></button>
+                        <button class="act-btn act-danger" onclick="deleteUser(${d.user_id},'doc-row-${d.user_id}')"><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            el.innerHTML = html;
+        });
+}
+
+// ================================
+// LOAD PATIENTS
+// ================================
+function loadAdminPatients() {
+    fetch('../php/admin/get-patients-list.php')
+        .then(res => res.json())
+        .then(data => {
+            let el = document.getElementById('admin-pats-table');
+            if(data.length === 0) {
+                el.innerHTML = '<div class="empty-state"><i class="bi bi-people"></i><h4>No Patients</h4></div>';
+                return;
+            }
+            let html = '<table class="data-table" id="pat-table"><thead><tr><th>#</th><th>Name</th><th>Code</th><th>Gender</th><th>Phone</th><th>Appointments</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+            data.forEach((p, i) => {
+                html += `<tr id="pat-row-${p.user_id}">
+                    <td>${i+1}</td>
+                    <td><strong>${p.full_name}</strong></td>
+                    <td style="font-size:11px; color:#6c757d;">${p.patient_code}</td>
+                    <td>${p.gender ? p.gender.charAt(0).toUpperCase()+p.gender.slice(1) : '-'}</td>
+                    <td>${p.phone}</td>
+                    <td>${p.total_appts}</td>
+                    <td><span class="badge ${p.status}">${p.status.charAt(0).toUpperCase()+p.status.slice(1)}</span></td>
+                    <td><button class="act-btn act-danger" onclick="deleteUser(${p.user_id},'pat-row-${p.user_id}')"><i class="bi bi-trash"></i></button></td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            el.innerHTML = html;
+        });
+}
+
+// ================================
+// LOAD SPECIALTIES
+// ================================
+function loadAdminSpecialties() {
+    let select = document.getElementById('adminSpecialty');
+    if(select.options.length > 1) return;
+    fetch('../php/api/get-specialties.php')
+        .then(res => res.json())
+        .then(data => {
+            select.innerHTML = '';
+            data.forEach(s => {
+                select.innerHTML += `<option value="${s.id}">${s.name}</option>`;
             });
         });
 }
 
-// Load Report Stats
-function loadReportStats() {
-    fetch('../php/admin/get-report-stats.php')
+// ================================
+// LOAD RECENT OVERVIEW
+// ================================
+function loadOverviewRecent() {
+    fetch('../php/admin/get-appointments.php?status=all&limit=5')
         .then(res => res.json())
         .then(data => {
-            document.getElementById('r-pending').innerHTML =
-                `<strong>${data.pending}</strong>`;
-            document.getElementById('r-approved').innerHTML =
-                `<strong>${data.approved}</strong>`;
-            document.getElementById('r-completed').innerHTML =
-                `<strong>${data.completed}</strong>`;
-            document.getElementById('r-cancelled').innerHTML =
-                `<strong>${data.cancelled}</strong>`;
+            let el = document.getElementById('overview-recent');
+            if(data.length === 0) {
+                el.innerHTML = '<div class="empty-state"><i class="bi bi-calendar-x"></i><h4>No Appointments Yet</h4></div>';
+                return;
+            }
+            let html = '<table class="data-table"><thead><tr><th>Patient</th><th>Doctor</th><th>Date</th><th>Status</th></tr></thead><tbody>';
+            data.slice(0,5).forEach(a => {
+                html += `<tr><td>${a.patient_name}</td><td>Dr. ${a.doctor_name}</td><td>${a.appointment_date}</td><td><span class="badge ${a.status}">${a.status.charAt(0).toUpperCase()+a.status.slice(1)}</span></td></tr>`;
+            });
+            html += '</tbody></table>';
+            el.innerHTML = html;
         });
 }
-
-loadRecentAppointments();
-loadReportStats();
+loadOverviewRecent();
 
 // ================================
-// Search Table
+// ACTIONS
 // ================================
-function searchTable(tableId, query) {
-    let rows = document.querySelectorAll(`#${tableId} tbody tr`);
-    query = query.toLowerCase();
-    rows.forEach(row => {
-        let text = row.textContent.toLowerCase();
-        row.style.display = text.includes(query) ? '' : 'none';
-    });
-}
-
-// ================================
-// Delete Appointment
-// ================================
-function deleteAppointment(id) {
+function deleteAppt(id) {
     if(!confirm('Delete this appointment?')) return;
     fetch('../php/admin/delete-appointment.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: id })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if(data.success) {
-            document.getElementById(`admin-appt-${id}`).remove();
-        }
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({id: id})
+    }).then(res => res.json()).then(data => {
+        if(data.success) document.getElementById(`admin-row-${id}`).remove();
     });
 }
 
-// ================================
-// Delete User
-// ================================
 function deleteUser(userId, rowId) {
-    if(!confirm('Delete this user? This cannot be undone!')) return;
+    if(!confirm('Delete this user permanently?')) return;
     fetch('../php/admin/delete-user.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if(data.success) {
-            document.getElementById(rowId).remove();
-        }
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({user_id: userId})
+    }).then(res => res.json()).then(data => {
+        if(data.success) document.getElementById(rowId).remove();
     });
 }
 
-// ================================
-// Toggle User Status
-// ================================
-function toggleStatus(userId, currentStatus) {
+function toggleUser(userId, currentStatus) {
     let newStatus = currentStatus === 'active' ? 'inactive' : 'active';
     fetch('../php/admin/toggle-status.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId, status: newStatus })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if(data.success) location.reload();
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({user_id: userId, status: newStatus})
+    }).then(res => res.json()).then(data => {
+        if(data.success) loadAdminDoctors();
     });
 }
 
 // ================================
-// Print Section (Feature #20)
+// SEARCH TABLE
+// ================================
+function searchTable(tableId, query) {
+    let table = document.getElementById(tableId);
+    if(!table) return;
+    let rows = table.querySelectorAll('tbody tr');
+    query = query.toLowerCase();
+    rows.forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
+    });
+}
+
+// ================================
+// PRINT SECTION
 // ================================
 function printSection(sectionId) {
     let content = document.getElementById(sectionId).innerHTML;
-    let printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-        <html>
-        <head>
-            <title>DocBook Report</title>
-            <style>
-                body { font-family: Arial, sans-serif; padding: 20px; }
-                h2 { color: #1a73e8; }
-                table { width: 100%; border-collapse: collapse; }
-                th { background: #f0f4f8; padding: 10px; text-align: left; }
-                td { padding: 10px; border-bottom: 1px solid #eee; }
-                .badge { padding: 3px 8px; border-radius: 10px; font-size: 11px; }
-                .no-print { display: none; }
-            </style>
-        </head>
+    let w = window.open('', '_blank');
+    w.document.write(`
+        <html><head><title>DocBook Report</title>
+        <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            h2 { color: #6366f1; }
+            table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+            th { background: #f0f4f8; padding: 10px; text-align: left; font-size: 12px; }
+            td { padding: 10px; border-bottom: 1px solid #eee; font-size: 13px; }
+            .badge { padding: 3px 8px; border-radius: 10px; font-size: 11px; }
+            .act-btn { display: none; }
+        </style></head>
         <body>
-            <h2>DocBook - System Report</h2>
-            <p>Generated: ${new Date().toLocaleString()}</p>
-            <hr>
+            <h2>DocBook - Report</h2>
+            <p>Generated: ${new Date().toLocaleString()}</p><hr>
             ${content}
-        </body>
-        </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
+        </body></html>`);
+    w.document.close();
+    w.print();
 }
 
 // ================================
-// Username Check in Add Doctor
+// USERNAME CHECK
 // ================================
-document.addEventListener('DOMContentLoaded', function() {
-    let usernameField = document.querySelector('[name="username"]');
-    if(usernameField) {
-        usernameField.addEventListener('keyup', function() {
-            let val = this.value;
-            if(val.length > 2) {
-                fetch(`../php/auth/check-username.php?username=${val}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        let msg = document.getElementById('admin-user-status');
-                        if(data.exists) {
-                            msg.textContent = '❌ Username taken!';
-                            msg.style.color = 'red';
-                        } else {
-                            msg.textContent = '✅ Available!';
-                            msg.style.color = 'green';
-                        }
-                    });
+document.getElementById('adminUsername')?.addEventListener('input', function() {
+    let val = this.value.trim();
+    let msg = document.getElementById('admin-user-check');
+    if(val.length < 3) { msg.textContent = ''; return; }
+    fetch(`../php/auth/check-username.php?username=${val}`)
+        .then(res => res.json())
+        .then(data => {
+            if(data.exists) {
+                msg.textContent = '✖ Taken'; msg.style.color = '#ef4444';
+            } else {
+                msg.textContent = '✓ Available'; msg.style.color = '#198754';
             }
         });
-    }
 });
+
+// Load specialties on page load
+loadAdminSpecialties();
+
+// ================================
+// GSAP
+// ================================
+gsap.from('.stat-card', { duration: 0.5, y: 25, opacity: 0, stagger: 0.08, ease: "power3.out" });
+gsap.from('.quick-card', { duration: 0.5, y: 20, opacity: 0, stagger: 0.1, delay: 0.3, ease: "power3.out" });
 </script>
 
 </body>

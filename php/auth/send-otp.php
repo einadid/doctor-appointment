@@ -1,69 +1,63 @@
 <?php
-session_start();
-include '../config/database.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 header('Content-Type: application/json');
+include '../config/database.php';
+
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Please login first'
+    ]);
+    exit();
+}
 
 $data = json_decode(file_get_contents('php://input'), true);
-$type = $data['type']; // 'email' or 'phone'
-$value = $data['value'];
-$user_id = $_SESSION['user_id'] ?? 0;
 
-// 6 digit OTP generate করো
+$type = $data['type'] ?? '';
+$value = trim($data['value'] ?? '');
+$user_id = (int) $_SESSION['user_id'];
+
+if (!in_array($type, ['email', 'phone']) || empty($value)) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Invalid request'
+    ]);
+    exit();
+}
+
 $otp = rand(100000, 999999);
 $expires = date('Y-m-d H:i:s', strtotime('+10 minutes'));
 
-// DB তে save করো
-$sql = "INSERT INTO verifications 
-        (user_id, verify_type, otp_code, expires_at)
-        VALUES (?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE 
-        otp_code = VALUES(otp_code),
-        expires_at = VALUES(expires_at),
-        is_used = 0";
-$stmt = mysqli_prepare($conn, $sql);
-mysqli_stmt_bind_param($stmt, "isss",
-    $user_id, $type, $otp, $expires);
-mysqli_stmt_execute($stmt);
+// আগে existing verification আছে কিনা check
+$check_sql = "SELECT id FROM verifications WHERE user_id = ? AND verify_type = ? ORDER BY id DESC LIMIT 1";
+$check_stmt = mysqli_prepare($conn, $check_sql);
+mysqli_stmt_bind_param($check_stmt, "is", $user_id, $type);
+mysqli_stmt_execute($check_stmt);
+$check_result = mysqli_stmt_get_result($check_stmt);
+$existing = mysqli_fetch_assoc($check_result);
 
-// Email পাঠানো (PHPMailer ছাড়া simple version)
-if($type == 'email') {
-    $to = $value;
-    $subject = "DocBook - Email Verification OTP";
-    $message = "
-    <html>
-    <body style='font-family:Arial,sans-serif;'>
-        <div style='max-width:400px;margin:0 auto;
-                    background:#f0f4f8;padding:30px;
-                    border-radius:10px;'>
-            <h2 style='color:#1a73e8;'>DocBook Verification</h2>
-            <p>Your OTP code is:</p>
-            <h1 style='font-size:40px;color:#1a73e8;
-                       letter-spacing:8px;'>$otp</h1>
-            <p style='color:#6c757d;font-size:13px;'>
-                This OTP expires in 10 minutes.
-            </p>
-        </div>
-    </body>
-    </html>";
-
-    $headers = "MIME-Version: 1.0\r\n";
-    $headers .= "Content-type:text/html;charset=UTF-8\r\n";
-    $headers .= "From: noreply@docbook.com\r\n";
-
-    // XAMPP localhost এ mail() কাজ করে না
-    // তাই আমরা OTP টা response এ দিচ্ছি (development mode)
-    echo json_encode([
-        'success' => true,
-        'otp' => $otp, // Production এ এটা remove করবে
-        'message' => "OTP sent to $value"
-    ]);
+if ($existing) {
+    $update_sql = "UPDATE verifications 
+                   SET otp_code = ?, is_used = 0, expires_at = ?
+                   WHERE id = ?";
+    $update_stmt = mysqli_prepare($conn, $update_sql);
+    mysqli_stmt_bind_param($update_stmt, "ssi", $otp, $expires, $existing['id']);
+    mysqli_stmt_execute($update_stmt);
 } else {
-    // Phone verification - same way
-    echo json_encode([
-        'success' => true,
-        'otp' => $otp,
-        'message' => "OTP sent to $value"
-    ]);
+    $insert_sql = "INSERT INTO verifications (user_id, verify_type, otp_code, is_used, expires_at)
+                   VALUES (?, ?, ?, 0, ?)";
+    $insert_stmt = mysqli_prepare($conn, $insert_sql);
+    mysqli_stmt_bind_param($insert_stmt, "isss", $user_id, $type, $otp, $expires);
+    mysqli_stmt_execute($insert_stmt);
 }
+
+// Dev mode এ OTP response এ দেখাচ্ছি
+echo json_encode([
+    'success' => true,
+    'otp' => $otp,
+    'message' => 'OTP generated successfully'
+]);
 ?>

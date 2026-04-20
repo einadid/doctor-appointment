@@ -221,3 +221,69 @@ VALUES (
     'System Admin'
 );
 
+-- Sample Posts
+INSERT INTO posts (user_id, title, content, media_type, media_url) VALUES
+(1, 'Stay Hydrated', 'Drinking 8 glasses of water daily keeps you healthy.', 'none', NULL),
+(1, 'Benefits of Walking', 'Walking 30 minutes daily can reduce heart disease risk.', 'youtube', 'dQw4w9WgXcQ'),
+(1, 'Healthy Diet Tips', 'Eat more fruits and vegetables for a balanced diet.', 'none', NULL);
+
+SELECT d.*, s.name as specialty 
+FROM doctors d 
+JOIN specialties s ON d.specialty_id = s.id;
+
+
+-- প্রথমে doctor users তৈরি করো
+INSERT INTO users (role, username, email, phone, password) VALUES
+('doctor', 'dr_ahmed', 'ahmed@docbook.com', '01711111111', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
+('doctor', 'dr_fatima', 'fatima@docbook.com', '01722222222', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
+('doctor', 'dr_imran', 'imran@docbook.com', '01733333333', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
+('doctor', 'dr_nadia', 'nadia@docbook.com', '01744444444', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
+('doctor', 'dr_karim', 'karim@docbook.com', '01755555555', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+
+-- Password: password (all doctors)
+
+-- এখন doctors table এ insert করো
+-- NOTE: user_id গুলো তোমার database অনুযায়ী different হতে পারে
+-- তাই আমরা LAST_INSERT_ID() ব্যবহার করতে পারবো না
+-- নিচের query চালাও:
+
+INSERT INTO doctors (user_id, specialty_id, doctor_code, full_name, gender, qualification, experience_years, consultation_fee, bio)
+SELECT u.id, 1, CONCAT('DOC-', UPPER(SUBSTRING(MD5(u.id), 1, 6))), 'Ahmed Khan', 'male', 'MBBS, FCPS (Cardiology)', 12, 800, 'Expert cardiologist with 12 years experience'
+FROM users u WHERE u.username = 'dr_ahmed';
+
+INSERT INTO doctors (user_id, specialty_id, doctor_code, full_name, gender, qualification, experience_years, consultation_fee, bio)
+SELECT u.id, 3, CONCAT('DOC-', UPPER(SUBSTRING(MD5(u.id), 1, 6))), 'Fatima Rahman', 'female', 'MBBS, MD (Neurology)', 8, 1000, 'Specialist in brain and nerve disorders'
+FROM users u WHERE u.username = 'dr_fatima';
+
+INSERT INTO doctors (user_id, specialty_id, doctor_code, full_name, gender, qualification, experience_years, consultation_fee, bio)
+SELECT u.id, 4, CONCAT('DOC-', UPPER(SUBSTRING(MD5(u.id), 1, 6))), 'Imran Hossain', 'male', 'MBBS, MS (Orthopedics)', 15, 700, 'Bone and joint specialist'
+FROM users u WHERE u.username = 'dr_imran';
+
+INSERT INTO doctors (user_id, specialty_id, doctor_code, full_name, gender, qualification, experience_years, consultation_fee, bio)
+SELECT u.id, 2, CONCAT('DOC-', UPPER(SUBSTRING(MD5(u.id), 1, 6))), 'Nadia Islam', 'female', 'MBBS, DDV (Dermatology)', 6, 600, 'Skin care and treatment specialist'
+FROM users u WHERE u.username = 'dr_nadia';
+
+INSERT INTO doctors (user_id, specialty_id, doctor_code, full_name, gender, qualification, experience_years, consultation_fee, bio)
+SELECT u.id, 5, CONCAT('DOC-', UPPER(SUBSTRING(MD5(u.id), 1, 6))), 'Karim Uddin', 'male', 'MBBS, MD (Medicine)', 20, 500, 'General physician with vast experience'
+FROM users u WHERE u.username = 'dr_karim';
+
+
+-- Doctor schedules (doctor_id তোমার database অনুযায়ী adjust করো)
+-- আগে doctor ids বের করো:
+SELECT id, full_name FROM doctors;
+
+-- ধরো doctor ids হলো 1,2,3,4,5 — তাহলে:
+INSERT INTO doctor_schedules (doctor_id, day_of_week, start_time, end_time, max_patients) VALUES
+(1, 'Saturday', '09:00:00', '14:00:00', 15),
+(1, 'Monday', '09:00:00', '14:00:00', 15),
+(1, 'Wednesday', '09:00:00', '14:00:00', 15),
+(2, 'Sunday', '10:00:00', '16:00:00', 12),
+(2, 'Tuesday', '10:00:00', '16:00:00', 12),
+(2, 'Thursday', '10:00:00', '16:00:00', 12),
+(3, 'Saturday', '14:00:00', '20:00:00', 10),
+(3, 'Monday', '14:00:00', '20:00:00', 10),
+(4, 'Sunday', '09:00:00', '13:00:00', 8),
+(4, 'Wednesday', '09:00:00', '13:00:00', 8),
+(5, 'Saturday', '08:00:00', '15:00:00', 20),
+(5, 'Sunday', '08:00:00', '15:00:00', 20),
+(5, 'Tuesday', '08:00:00', '15:00:00', 20);
