@@ -1,0 +1,30 @@
+{
+  "name": "doctor-appointment",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+  "sass": "sass --watch sass/main.scss assets/css/style.css",
+  "build-css": "sass sass/main.scss assets/css/style.css"
+},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/einadid/doctor-appointment.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/einadid/doctor-appointment/issues"
+  },
+  "homepage": "https://github.com/einadid/doctor-appointment#readme",
+  "devDependencies": {
+    "browser-sync": "^3.0.4",
+    "gulp": "^5.0.1",
+    "gulp-cssmin": "^0.2.0",
+    "gulp-sass": "^6.0.1",
+    "gulp-uglify": "^3.0.2",
+    "sass": "^1.99.0"
+  }
+}
