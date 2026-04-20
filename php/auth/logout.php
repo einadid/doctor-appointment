@@ -1,11 +1,8 @@
 <?php
 session_start();
+session_unset(); // সব সেশন ভেরিয়েবল মুছে ফেলা
+session_destroy(); // সেশন ধ্বংস করা
 
-// সব session destroy করো
-$_SESSION = [];
-session_destroy();
-
-// Login page এ redirect
-header('Location: ../../pages/login.html');
-exit;
+header("Location: ../../index.html"); // হোমে ফেরত পাঠানো
+exit();
 ?>

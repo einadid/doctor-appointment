@@ -1,375 +1,484 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Patient Dashboard | DocBook</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" 
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <style>
-        .dashboard {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            min-height: 100vh;
-        }
+      .dashboard {
+        display: grid;
+        grid-template-columns: 250px 1fr;
+        min-height: 100vh;
+      }
 
-        /* Sidebar */
-        .sidebar {
-            background: #1a73e8;
-            color: white;
-            padding: 24px 0;
-            position: sticky;
-            top: 0;
-            height: 100vh;
-        }
+      /* Sidebar */
+      .sidebar {
+        background: #1a73e8;
+        color: white;
+        padding: 24px 0;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+      }
 
-        .sidebar-brand {
-            text-align: center;
-            padding: 0 20px 24px;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-        }
+      .sidebar-brand {
+        text-align: center;
+        padding: 0 20px 24px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
 
-        .sidebar-brand img {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid white;
-            margin-bottom: 8px;
-        }
+      .sidebar-brand img {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid white;
+        margin-bottom: 8px;
+      }
 
-        .sidebar-brand h4 {
-            font-size: 14px;
-            font-weight: 600;
-        }
+      .sidebar-brand h4 {
+        font-size: 14px;
+        font-weight: 600;
+      }
 
-        .sidebar-brand p {
-            font-size: 12px;
-            opacity: 0.8;
-        }
+      .sidebar-brand p {
+        font-size: 12px;
+        opacity: 0.8;
+      }
 
-        .sidebar-menu {
-            padding: 16px 0;
-        }
+      .sidebar-menu {
+        padding: 16px 0;
+      }
 
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 24px;
-            color: rgba(255,255,255,0.85);
-            font-size: 14px;
-            transition: all 0.3s;
-        }
+      .sidebar-menu a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 24px;
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 14px;
+        transition: all 0.3s;
+      }
 
-        .sidebar-menu a:hover,
-        .sidebar-menu a.active {
-            background: rgba(255,255,255,0.15);
-            color: white;
-            padding-left: 32px;
-        }
+      .sidebar-menu a:hover,
+      .sidebar-menu a.active {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        padding-left: 32px;
+      }
 
-        .sidebar-menu a i {
-            font-size: 18px;
-        }
+      .sidebar-menu a i {
+        font-size: 18px;
+      }
 
-        .sidebar-menu .logout-btn {
-            margin-top: auto;
-            color: #ff6b6b;
-        }
+      .sidebar-menu .logout-btn {
+        margin-top: auto;
+        color: #ff6b6b;
+      }
 
-        /* Main Content */
-        .main-content {
-            padding: 24px;
-            background: #f0f4f8;
-        }
+      /* Main Content */
+      .main-content {
+        padding: 24px;
+        background: #f0f4f8;
+      }
 
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
+      /* Stats Cards */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+      }
 
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
+      .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
 
-        .stat-card i {
-            font-size: 36px;
-            margin-bottom: 8px;
-        }
+      .stat-card i {
+        font-size: 36px;
+        margin-bottom: 8px;
+      }
 
-        .stat-card h3 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
+      .stat-card h3 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
 
-        .stat-card p {
-            font-size: 13px;
-            color: #6c757d;
-        }
+      .stat-card p {
+        font-size: 13px;
+        color: #6c757d;
+      }
 
-        /* Section */
-        .section-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            margin-bottom: 24px;
-        }
+      /* Section */
+      .section-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 24px;
+      }
 
-        .section-card h3 {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: #1a73e8;
-            border-bottom: 2px solid #e8f0fe;
-            padding-bottom: 8px;
-        }
+      .section-card h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: #1a73e8;
+        border-bottom: 2px solid #e8f0fe;
+        padding-bottom: 8px;
+      }
 
-        /* Table */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
+      /* Table */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
 
-        th {
-            background: #f8f9fa;
-            padding: 10px 12px;
-            text-align: left;
-            font-weight: 600;
-            color: #495057;
-        }
+      th {
+        background: #f8f9fa;
+        padding: 10px 12px;
+        text-align: left;
+        font-weight: 600;
+        color: #495057;
+      }
 
-        td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #f0f4f8;
-        }
+      td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #f0f4f8;
+      }
 
-        tr:hover td {
-            background: #f8f9fa;
-        }
+      tr:hover td {
+        background: #f8f9fa;
+      }
     </style>
-</head>
-<body>
-
-<div class="dashboard">
-
-    <!-- SIDEBAR -->
-    <div class="sidebar" id="sidebar">
+  </head>
+  <body>
+    <div class="dashboard">
+      <!-- SIDEBAR -->
+      <div class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <img id="user-image" src="../assets/images/uploads/default.png" 
-            alt="Profile">
-            <h4 id="user-name">Loading...</h4>
-            <p id="user-role">Patient</p>
+          <img
+            id="user-image"
+            src="../assets/images/uploads/default.png"
+            alt="Profile"
+          />
+          <h4 id="user-name">Loading...</h4>
+          <p id="user-role">Patient</p>
         </div>
 
         <div class="sidebar-menu">
-            <a href="#" class="active" onclick="showSection('dashboard')">
-                <i class="bi bi-speedometer2"></i> Dashboard
-            </a>
-            <a href="#" onclick="showSection('book-appointment')">
-                <i class="bi bi-calendar-plus"></i> Book Appointment
-            </a>
-            <a href="#" onclick="showSection('my-appointments')">
-                <i class="bi bi-calendar-check"></i> My Appointments
-            </a>
-            <a href="#" onclick="showSection('doctors')">
-                <i class="bi bi-person-badge"></i> Doctors
-            </a>
-            <a href="#" onclick="showSection('posts')">
-                <i class="bi bi-newspaper"></i> Health Posts
-            </a>
-            <a href="#" onclick="showSection('profile')">
-                <i class="bi bi-person-circle"></i> Profile
-            </a>
-            <a href="../php/auth/logout.php" class="logout-btn">
-                <i class="bi bi-box-arrow-left"></i> Logout
-            </a>
+          <a href="#" class="active" onclick="showSection('dashboard')">
+            <i class="bi bi-speedometer2"></i> Dashboard
+          </a>
+          <a href="#" onclick="showSection('book-appointment')">
+            <i class="bi bi-calendar-plus"></i> Book Appointment
+          </a>
+          <a href="#" onclick="showSection('my-appointments')">
+            <i class="bi bi-calendar-check"></i> My Appointments
+          </a>
+          <a href="#" onclick="showSection('doctors')">
+            <i class="bi bi-person-badge"></i> Doctors
+          </a>
+          <a href="#" onclick="showSection('posts')">
+            <i class="bi bi-newspaper"></i> Health Posts
+          </a>
+          <a href="#" onclick="showSection('profile')">
+            <i class="bi bi-person-circle"></i> Profile
+          </a>
+          <a href="../php/auth/logout.php" class="logout-btn">
+            <i class="bi bi-box-arrow-left"></i> Logout
+          </a>
         </div>
-    </div>
+      </div>
 
-    <!-- MAIN CONTENT -->
-    <div class="main-content">
-
+      <!-- MAIN CONTENT -->
+      <div class="main-content">
         <!-- Dashboard Section -->
         <div id="section-dashboard">
-            <h2 style="margin-bottom:20px; color:#212529;">
-                <i class="bi bi-speedometer2"></i> 
-                Dashboard Overview
-            </h2>
+          <h2 style="margin-bottom: 20px; color: #212529">
+            <i class="bi bi-speedometer2"></i>
+            Dashboard Overview
+          </h2>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <i class="bi bi-calendar-check" 
-                    style="color:#1a73e8;"></i>
-                    <h3 id="total-appointments">0</h3>
-                    <p>Total Appointments</p>
-                </div>
-                <div class="stat-card">
-                    <i class="bi bi-clock-history" 
-                    style="color:#ffc107;"></i>
-                    <h3 id="pending-appointments">0</h3>
-                    <p>Pending</p>
-                </div>
-                <div class="stat-card">
-                    <i class="bi bi-check-circle" 
-                    style="color:#198754;"></i>
-                    <h3 id="completed-appointments">0</h3>
-                    <p>Completed</p>
-                </div>
-                <div class="stat-card">
-                    <i class="bi bi-person-badge" 
-                    style="color:#6f42c1;"></i>
-                    <h3 id="total-doctors">0</h3>
-                    <p>Available Doctors</p>
-                </div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <i class="bi bi-calendar-check" style="color: #1a73e8"></i>
+              <h3 id="total-appointments">0</h3>
+              <p>Total Appointments</p>
             </div>
+            <div class="stat-card">
+              <i class="bi bi-clock-history" style="color: #ffc107"></i>
+              <h3 id="pending-appointments">0</h3>
+              <p>Pending</p>
+            </div>
+            <div class="stat-card">
+              <i class="bi bi-check-circle" style="color: #198754"></i>
+              <h3 id="completed-appointments">0</h3>
+              <p>Completed</p>
+            </div>
+            <div class="stat-card">
+              <i class="bi bi-person-badge" style="color: #6f42c1"></i>
+              <h3 id="total-doctors">0</h3>
+              <p>Available Doctors</p>
+            </div>
+          </div>
 
-            <!-- Recent Appointments -->
-            <div class="section-card">
-                <h3>
-                    <i class="bi bi-clock-history"></i> 
-                    Recent Appointments
-                </h3>
-                <div id="recent-appointments">
-                    <p style="color:#6c757d; font-size:14px;">
-                    Loading...</p>
-                </div>
+          <!-- Recent Appointments -->
+          <div class="section-card">
+            <h3>
+              <i class="bi bi-clock-history"></i>
+              Recent Appointments
+            </h3>
+            <div id="recent-appointments">
+              <p style="color: #6c757d; font-size: 14px">Loading...</p>
             </div>
+          </div>
         </div>
 
         <!-- Other sections -->
-        <div id="section-book-appointment" style="display:none;">
-            <h2 style="margin-bottom:20px;">
-                <i class="bi bi-calendar-plus"></i> Book Appointment
-            </h2>
-            <!-- Appointment booking form আসবে পরের phase এ -->
-            <div class="section-card">
-                <p>Appointment booking form coming soon...</p>
-            </div>
+        <div id="section-book-appointment" style="display: none">
+          <h2 style="margin-bottom: 20px">
+            <i class="bi bi-calendar-plus"></i> Book Appointment
+          </h2>
+
+          <div class="section-card">
+            <div id="booking-alert"></div>
+
+            <form id="bookingForm">
+              <!-- Specialty Filter -->
+              <div class="form-group">
+                <label>Filter by Specialty</label>
+                <select id="filter-specialty" name="filter_specialty">
+                  <option value="">-- All Specialties --</option>
+                </select>
+              </div>
+
+              <!-- Doctor Select -->
+              <div class="form-group">
+                <label>Select Doctor</label>
+                <select id="select-doctor" name="doctor_id" required>
+                  <option value="">-- Select Doctor --</option>
+                </select>
+              </div>
+
+              <!-- Doctor Info Card -->
+              <div
+                id="doctor-info-card"
+                style="
+                  display: none;
+                  background: #e8f0fe;
+                  border-radius: 10px;
+                  padding: 16px;
+                  margin-bottom: 16px;
+                "
+              >
+                <div style="display: flex; gap: 16px; align-items: center">
+                  <img
+                    id="doc-img"
+                    src=""
+                    alt=""
+                    style="
+                      width: 60px;
+                      height: 60px;
+                      border-radius: 50%;
+                      object-fit: cover;
+                      border: 3px solid #1a73e8;
+                    "
+                  />
+                  <div>
+                    <h4 id="doc-name" style="font-size: 15px"></h4>
+                    <p
+                      id="doc-specialty"
+                      style="font-size: 13px; color: #1a73e8"
+                    ></p>
+                    <p
+                      id="doc-fee"
+                      style="font-size: 13px; color: #198754; font-weight: 600"
+                    ></p>
+                    <div
+                      id="doc-rating"
+                      style="color: #ffc107; font-size: 14px"
+                    ></div>
+                  </div>
+                </div>
+
+                <!-- Schedule -->
+                <div
+                  id="schedule-info"
+                  style="margin-top: 12px; font-size: 13px"
+                ></div>
+              </div>
+
+              <!-- Date Picker -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Appointment Date</label>
+                  <input
+                    type="text"
+                    id="appointment_date"
+                    name="appointment_date"
+                    placeholder="Select date"
+                    required
+                    readonly
+                  />
+                </div>
+
+                <!-- Time Slots -->
+                <div class="form-group">
+                  <label>Appointment Time</label>
+                  <select
+                    id="appointment_time"
+                    name="appointment_time"
+                    required
+                  >
+                    <option value="">-- Select Time --</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Reason -->
+              <div class="form-group">
+                <label>Reason for Visit</label>
+                <textarea
+                  id="reason"
+                  name="reason"
+                  rows="3"
+                  placeholder="Describe your symptoms..."
+                ></textarea>
+              </div>
+
+              <button type="submit" class="btn-submit" id="book-btn">
+                <span id="book-btn-text">
+                  <i class="bi bi-calendar-check"></i>
+                  Book Appointment
+                </span>
+              </button>
+            </form>
+          </div>
         </div>
 
-        <div id="section-my-appointments" style="display:none;">
-            <h2 style="margin-bottom:20px;">
-                <i class="bi bi-calendar-check"></i> My Appointments
-            </h2>
-            <div class="section-card">
-                <div id="appointments-list">Loading...</div>
-            </div>
+        <div id="section-my-appointments" style="display: none">
+          <h2 style="margin-bottom: 20px">
+            <i class="bi bi-calendar-check"></i> My Appointments
+          </h2>
+          <div class="section-card">
+            <div id="appointments-list">Loading...</div>
+          </div>
         </div>
 
-        <div id="section-doctors" style="display:none;">
-            <h2 style="margin-bottom:20px;">
-                <i class="bi bi-person-badge"></i> Our Doctors
-            </h2>
-            <div id="doctors-grid" 
-            style="display:grid; 
-            grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); 
-            gap:16px;">
-                Loading...
-            </div>
+        <div id="section-doctors" style="display: none">
+          <h2 style="margin-bottom: 20px">
+            <i class="bi bi-person-badge"></i> Our Doctors
+          </h2>
+          <div
+            id="doctors-grid"
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+              gap: 16px;
+            "
+          >
+            Loading...
+          </div>
         </div>
 
-        <div id="section-posts" style="display:none;">
-            <h2 style="margin-bottom:20px;">
-                <i class="bi bi-newspaper"></i> Health Posts
-            </h2>
-            <div id="posts-container">Loading...</div>
+        <div id="section-posts" style="display: none">
+          <h2 style="margin-bottom: 20px">
+            <i class="bi bi-newspaper"></i> Health Posts
+          </h2>
+          <div id="posts-container">Loading...</div>
         </div>
 
-        <div id="section-profile" style="display:none;">
-            <h2 style="margin-bottom:20px;">
-                <i class="bi bi-person-circle"></i> My Profile
-            </h2>
-            <div class="section-card">
-                <div id="profile-info">Loading...</div>
-            </div>
+        <div id="section-profile" style="display: none">
+          <h2 style="margin-bottom: 20px">
+            <i class="bi bi-person-circle"></i> My Profile
+          </h2>
+          <div class="section-card">
+            <div id="profile-info">Loading...</div>
+          </div>
         </div>
-
+      </div>
     </div>
-</div>
 
-<script>
-// ================================
-// Session Check করো
-// ================================
-fetch('../php/api/get_session.php')
-    .then(res => res.json())
-    .then(data => {
-        if (!data.logged_in) {
-            window.location.href = 'login.html';
+    <script>
+      // ================================
+      // Session Check করো
+      // ================================
+      fetch("../php/api/get_session.php")
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.logged_in) {
+            window.location.href = "login.html";
             return;
-        }
+          }
 
-        if (data.data.role !== 'patient') {
-            window.location.href = 'login.html';
+          if (data.data.role !== "patient") {
+            window.location.href = "login.html";
             return;
-        }
+          }
 
-        // User info দেখাও
-        document.getElementById('user-name').textContent = 
+          // User info দেখাও
+          document.getElementById("user-name").textContent =
             data.data.full_name || data.data.username;
-        document.getElementById('user-role').textContent = 
-            'Patient';
+          document.getElementById("user-role").textContent = "Patient";
 
-        if (data.data.image && data.data.image !== 'default.png') {
-            document.getElementById('user-image').src = 
-                '../assets/images/uploads/' + data.data.image;
+          if (data.data.image && data.data.image !== "default.png") {
+            document.getElementById("user-image").src =
+              "../assets/images/uploads/" + data.data.image;
+          }
+
+          // Dashboard data লোড করো
+          loadDashboardStats();
+        });
+
+      // ================================
+      // Dashboard Stats
+      // ================================
+      function loadDashboardStats() {
+        fetch("../php/api/patient_stats.php")
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status === "success") {
+              document.getElementById("total-appointments").textContent =
+                data.total || 0;
+              document.getElementById("pending-appointments").textContent =
+                data.pending || 0;
+              document.getElementById("completed-appointments").textContent =
+                data.completed || 0;
+              document.getElementById("total-doctors").textContent =
+                data.doctors || 0;
+
+              // Recent appointments
+              renderRecentAppointments(data.recent || []);
+            }
+          });
+      }
+
+      // ================================
+      // Recent Appointments Table
+      // ================================
+      function renderRecentAppointments(appointments) {
+        const div = document.getElementById("recent-appointments");
+
+        if (appointments.length === 0) {
+          div.innerHTML = `<p style="color:#6c757d; font-size:14px;">
+        No appointments yet.</p>`;
+          return;
         }
 
-        // Dashboard data লোড করো
-        loadDashboardStats();
-    });
-
-// ================================
-// Dashboard Stats
-// ================================
-function loadDashboardStats() {
-    fetch('../php/api/patient_stats.php')
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'success') {
-                document.getElementById('total-appointments')
-                    .textContent = data.total || 0;
-                document.getElementById('pending-appointments')
-                    .textContent = data.pending || 0;
-                document.getElementById('completed-appointments')
-                    .textContent = data.completed || 0;
-                document.getElementById('total-doctors')
-                    .textContent = data.doctors || 0;
-
-                // Recent appointments
-                renderRecentAppointments(data.recent || []);
-            }
-        });
-}
-
-// ================================
-// Recent Appointments Table
-// ================================
-function renderRecentAppointments(appointments) {
-    const div = document.getElementById('recent-appointments');
-
-    if (appointments.length === 0) {
-        div.innerHTML = 
-        `<p style="color:#6c757d; font-size:14px;">
-        No appointments yet.</p>`;
-        return;
-    }
-
-    let html = `
+        let html = `
     <table>
         <thead>
             <tr>
@@ -382,8 +491,8 @@ function renderRecentAppointments(appointments) {
         </thead>
         <tbody>`;
 
-    appointments.forEach(a => {
-        html += `
+        appointments.forEach((a) => {
+          html += `
         <tr>
             <td>${a.appointment_no}</td>
             <td>${a.doctor_name}</td>
@@ -395,59 +504,712 @@ function renderRecentAppointments(appointments) {
                 </span>
             </td>
         </tr>`;
-    });
+        });
 
-    html += `</tbody></table>`;
-    div.innerHTML = html;
-}
+        html += `</tbody></table>`;
+        div.innerHTML = html;
+      }
 
-// ================================
-// Section Switch
-// ================================
-function showSection(name) {
-    // সব section লুকাও
-    document.querySelectorAll('[id^="section-"]').forEach(el => {
-        el.style.display = 'none';
-    });
+      // ================================
+      // Section Switch
+      // ================================
+      function showSection(name) {
+        // সব section লুকাও
+        document.querySelectorAll('[id^="section-"]').forEach((el) => {
+          el.style.display = "none";
+        });
 
-    // Active section দেখাও
-    const section = document.getElementById('section-' + name);
-    if (section) {
-        section.style.display = 'block';
-        gsap.from(section, {
+        // Active section দেখাও
+        const section = document.getElementById("section-" + name);
+        if (section) {
+          section.style.display = "block";
+          gsap.from(section, {
             duration: 0.4,
             y: 20,
             opacity: 0,
-            ease: "power2.out"
+            ease: "power2.out",
+          });
+        }
+
+        // Sidebar active link
+        document.querySelectorAll(".sidebar-menu a").forEach((a) => {
+          a.classList.remove("active");
         });
-    }
+        event.target.closest("a").classList.add("active");
+      }
 
-    // Sidebar active link
-    document.querySelectorAll('.sidebar-menu a').forEach(a => {
-        a.classList.remove('active');
-    });
-    event.target.closest('a').classList.add('active');
-}
+      // ================================
+      // GSAP Sidebar Animation
+      // ================================
+      gsap.from("#sidebar", {
+        duration: 0.8,
+        x: -250,
+        opacity: 0,
+        ease: "power3.out",
+      });
 
-// ================================
-// GSAP Sidebar Animation
-// ================================
-gsap.from("#sidebar", {
-    duration: 0.8,
-    x: -250,
-    opacity: 0,
-    ease: "power3.out"
-});
+      gsap.from(".stats-grid .stat-card", {
+        duration: 0.6,
+        y: 30,
+        opacity: 0,
+        stagger: 0.1,
+        ease: "power2.out",
+        delay: 0.3,
+      });
+      // ================================
+      // Load Specialties in Booking Form
+      // ================================
+      function loadBookingSpecialties() {
+        fetch("../php/api/get_specialties.php")
+          .then((res) => res.json())
+          .then((data) => {
+            const sel = document.getElementById("filter-specialty");
+            if (data.status === "success") {
+              data.data.forEach((s) => {
+                sel.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+              });
+            }
+          });
+        loadBookingDoctors("");
+      }
 
-gsap.from(".stats-grid .stat-card", {
-    duration: 0.6,
-    y: 30,
-    opacity: 0,
-    stagger: 0.1,
-    ease: "power2.out",
-    delay: 0.3
-});
-</script>
+      // ================================
+      // Load Doctors
+      // ================================
+      function loadBookingDoctors(specialty_id) {
+        const url = specialty_id
+          ? `../php/api/get_doctors.php?specialty_id=${specialty_id}`
+          : `../php/api/get_doctors.php`;
 
-</body>
+        fetch(url)
+          .then((res) => res.json())
+          .then((data) => {
+            const sel = document.getElementById("select-doctor");
+            sel.innerHTML = '<option value="">-- Select Doctor --</option>';
+
+            if (data.status === "success") {
+              data.data.forEach((d) => {
+                sel.innerHTML += `<option value="${d.id}" 
+                     data-name="${d.full_name}"
+                     data-specialty="${d.specialty}"
+                     data-fee="${d.consultation_fee}"
+                     data-rating="${parseFloat(d.avg_rating).toFixed(1)}"
+                     data-image="${d.image}">
+                     Dr. ${d.full_name} - ${d.specialty}
+                     </option>`;
+              });
+            }
+          });
+      }
+
+      // Specialty filter change
+      document
+        .getElementById("filter-specialty")
+        ?.addEventListener("change", function () {
+          loadBookingDoctors(this.value);
+        });
+
+      // Doctor select change
+      document
+        .getElementById("select-doctor")
+        ?.addEventListener("change", function () {
+          const opt = this.options[this.selectedIndex];
+          const card = document.getElementById("doctor-info-card");
+
+          if (!this.value) {
+            card.style.display = "none";
+            return;
+          }
+
+          // Doctor info দেখাও
+          document.getElementById("doc-name").textContent =
+            "Dr. " + opt.dataset.name;
+          document.getElementById("doc-specialty").textContent =
+            opt.dataset.specialty;
+          document.getElementById("doc-fee").textContent =
+            "Fee: ৳" + opt.dataset.fee;
+
+          // Rating stars
+          const rating = parseFloat(opt.dataset.rating);
+          let stars = "";
+          for (let i = 1; i <= 5; i++) {
+            stars += i <= rating ? "★" : "☆";
+          }
+          document.getElementById("doc-rating").textContent =
+            stars + " " + rating;
+
+          // Image
+          const img = document.getElementById("doc-img");
+          img.src =
+            opt.dataset.image !== "default.png"
+              ? "../assets/images/uploads/" + opt.dataset.image
+              : "../assets/images/default-doctor.png";
+
+          card.style.display = "block";
+          gsap.from(card, {
+            duration: 0.4,
+            y: -10,
+            opacity: 0,
+            ease: "power2.out",
+          });
+
+          // Load schedules
+          loadSchedule(this.value);
+        });
+
+      // ================================
+      // Load Schedule & Time Slots
+      // ================================
+      function loadSchedule(doctor_id) {
+        fetch(`../php/api/get_schedules.php?doctor_id=${doctor_id}`)
+          .then((res) => res.json())
+          .then((data) => {
+            const info = document.getElementById("schedule-info");
+            const timeSelect = document.getElementById("appointment_time");
+            timeSelect.innerHTML =
+              '<option value="">-- Select Time --</option>';
+
+            if (data.status === "success" && data.data.length > 0) {
+              let scheduleHTML = "<strong>Available Days:</strong><br>";
+              let availableDays = [];
+
+              data.data.forEach((s) => {
+                scheduleHTML += `<span style="display:inline-block; 
+                     background:#1a73e8; color:white; 
+                     padding:2px 10px; border-radius:20px; 
+                     margin:3px; font-size:12px;">
+                     ${s.day_of_week} 
+                     ${s.start_time} - ${s.end_time}
+                     </span>`;
+
+                availableDays.push(s.day_of_week);
+
+                // Time slots generate করো
+                generateTimeSlots(s.start_time, s.end_time, timeSelect);
+              });
+
+              info.innerHTML = scheduleHTML;
+
+              // Datepicker setup
+              setupDatepicker(availableDays);
+            } else {
+              info.innerHTML =
+                '<p style="color:#dc3545;">No schedule available</p>';
+            }
+          });
+      }
+
+      // Time slots generate
+      function generateTimeSlots(start, end, select) {
+        const startTime = new Date("1970-01-01T" + start);
+        const endTime = new Date("1970-01-01T" + end);
+        const interval = 30; // 30 min
+
+        while (startTime < endTime) {
+          const timeStr = startTime.toTimeString().slice(0, 5);
+          select.innerHTML += `<option value="${timeStr}">${timeStr}</option>`;
+          startTime.setMinutes(startTime.getMinutes() + interval);
+        }
+      }
+
+      // ================================
+      // Datepicker Setup
+      // ================================
+      let datepickerInstance = null;
+
+      function setupDatepicker(availableDays) {
+        const dayMap = {
+          Sunday: 0,
+          Monday: 1,
+          Tuesday: 2,
+          Wednesday: 3,
+          Thursday: 4,
+          Friday: 5,
+          Saturday: 6,
+        };
+
+        const allowedDays = availableDays.map((d) => dayMap[d]);
+
+        if (datepickerInstance) {
+          datepickerInstance.destroy();
+        }
+
+        datepickerInstance = flatpickr("#appointment_date", {
+          dateFormat: "Y-m-d",
+          minDate: "today",
+          disable: [
+            function (date) {
+              return !allowedDays.includes(date.getDay());
+            },
+          ],
+        });
+      }
+
+      // ================================
+      // Booking Form Submit
+      // ================================
+      document
+        .getElementById("bookingForm")
+        ?.addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const btn = document.getElementById("book-btn");
+          const btnText = document.getElementById("book-btn-text");
+          btnText.innerHTML = '<span class="spinner"></span> Booking...';
+          btn.disabled = true;
+
+          const formData = new FormData(this);
+
+          fetch("../php/api/book_appointment.php", {
+            method: "POST",
+            body: formData,
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              const alertBox = document.getElementById("booking-alert");
+              if (data.status === "success") {
+                alertBox.innerHTML = `<div class="alert success">
+                ✅ ${data.message}<br>
+                <strong>Appointment No: ${data.appointment_no}</strong>
+            </div>`;
+                this.reset();
+                document.getElementById("doctor-info-card").style.display =
+                  "none";
+                loadDashboardStats();
+              } else {
+                alertBox.innerHTML = `<div class="alert error">❌ ${data.message}</div>`;
+              }
+              btnText.innerHTML =
+                '<i class="bi bi-calendar-check"></i> Book Appointment';
+              btn.disabled = false;
+            });
+        });
+
+      // Section show হলে load করো
+      const origShowSection = showSection;
+      window.showSection = function (name) {
+        origShowSection(name);
+        if (name === "book-appointment") {
+          loadBookingSpecialties();
+        }
+        if (name === "posts") {
+          loadPosts();
+        }
+      };
+      // ================================
+      // Load Posts with Pagination
+      // ================================
+      let currentPage = 1;
+
+      function loadPosts(page = 1) {
+        currentPage = page;
+        fetch(`../php/api/get_posts.php?page=${page}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status !== "success") return;
+
+            const container = document.getElementById("posts-container");
+            let html = "";
+
+            data.data.forEach((post) => {
+              html += renderPost(post);
+            });
+
+            // Pagination
+            html += renderPagination(data.page, data.total_pages);
+
+            container.innerHTML = html;
+
+            // GSAP animation
+            gsap.from(".post-card", {
+              duration: 0.5,
+              y: 30,
+              opacity: 0,
+              stagger: 0.1,
+              ease: "power2.out",
+            });
+          });
+      }
+
+      // ================================
+      // Render Single Post
+      // ================================
+      function renderPost(post) {
+        const liked = post.user_reaction === "like";
+        const disliked = post.user_reaction === "dislike";
+
+        // Media content
+        let mediaHTML = "";
+        if (post.media_type === "youtube" && post.media_url) {
+          const videoId = getYouTubeId(post.media_url);
+          if (videoId) {
+            mediaHTML = `
+            <div style="margin:12px 0; border-radius:8px; overflow:hidden;">
+                <iframe width="100%" height="250"
+                src="https://www.youtube.com/embed/${videoId}"
+                frameborder="0" allowfullscreen></iframe>
+            </div>`;
+          }
+        } else if (post.media_type === "image" && post.media_url) {
+          mediaHTML = `
+        <img src="../assets/images/uploads/${post.media_url}"
+        style="width:100%; border-radius:8px; margin:12px 0;
+        max-height:300px; object-fit:cover;" alt="Post image">`;
+        } else if (post.media_type === "audio" && post.media_url) {
+          mediaHTML = `
+        <audio controls style="width:100%; margin:12px 0;">
+            <source src="${post.media_url}">
+        </audio>`;
+        }
+
+        return `
+    <div class="section-card post-card" id="post-${post.id}">
+        <!-- Post Header -->
+        <div style="display:flex; justify-content:space-between;
+        align-items:center; margin-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:40px; height:40px; 
+                border-radius:50%; background:#1a73e8;
+                display:flex; align-items:center; 
+                justify-content:center; color:white; 
+                font-weight:700; font-size:16px;">
+                    ${post.username[0].toUpperCase()}
+                </div>
+                <div>
+                    <strong style="font-size:14px;">
+                        @${post.username}
+                    </strong>
+                    <p style="font-size:12px; color:#6c757d;">
+                        ${new Date(post.created_at).toLocaleDateString()}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Post Content -->
+        <h3 style="font-size:16px; margin-bottom:8px;">
+            ${post.title}
+        </h3>
+        <p style="font-size:14px; color:#495057; 
+        line-height:1.6;">
+            ${post.content}
+        </p>
+
+        ${mediaHTML}
+
+        <!-- Like/Dislike Buttons -->
+        <div style="display:flex; gap:12px; 
+        margin:16px 0; padding:12px 0; 
+        border-top:1px solid #f0f4f8;
+        border-bottom:1px solid #f0f4f8;">
+
+            <button onclick="reactPost(${post.id}, 'like')"
+            id="like-btn-${post.id}"
+            style="display:flex; align-items:center; gap:6px;
+            padding:8px 16px; border-radius:20px; border:none;
+            background:${liked ? "#e8f0fe" : "#f8f9fa"};
+            color:${liked ? "#1a73e8" : "#6c757d"};
+            cursor:pointer; font-size:14px; font-weight:500;
+            transition:all 0.3s;">
+                <i class="bi bi-hand-thumbs-up${liked ? "-fill" : ""}"></i>
+                <span id="like-count-${post.id}">${post.likes}</span>
+            </button>
+
+            <button onclick="reactPost(${post.id}, 'dislike')"
+            id="dislike-btn-${post.id}"
+            style="display:flex; align-items:center; gap:6px;
+            padding:8px 16px; border-radius:20px; border:none;
+            background:${disliked ? "#ffeaea" : "#f8f9fa"};
+            color:${disliked ? "#dc3545" : "#6c757d"};
+            cursor:pointer; font-size:14px; font-weight:500;
+            transition:all 0.3s;">
+                <i class="bi bi-hand-thumbs-down${disliked ? "-fill" : ""}"></i>
+                <span id="dislike-count-${post.id}">
+                    ${post.dislikes}
+                </span>
+            </button>
+
+            <button onclick="toggleComments(${post.id})"
+            style="display:flex; align-items:center; gap:6px;
+            padding:8px 16px; border-radius:20px; border:none;
+            background:#f8f9fa; color:#6c757d;
+            cursor:pointer; font-size:14px;">
+                <i class="bi bi-chat"></i>
+                <span id="comment-count-${post.id}">
+                    ${post.comment_count}
+                </span> Comments
+            </button>
+
+            <!-- Rating -->
+            <div id="rating-stars-${post.id}"
+            style="margin-left:auto; display:flex; 
+            align-items:center; gap:4px;">
+                ${renderRatingStars(post.id)}
+            </div>
+        </div>
+
+        <!-- Comments Section -->
+        <div id="comments-section-${post.id}" 
+        style="display:none;">
+            <div id="comments-list-${post.id}"
+            style="margin-bottom:12px;">
+            </div>
+
+            <!-- Comment Input -->
+            <div style="display:flex; gap:8px;">
+                <input type="text" 
+                id="comment-input-${post.id}"
+                placeholder="Write a comment..."
+                style="flex:1; padding:8px 12px; 
+                border-radius:20px; font-size:13px;"
+                onkeypress="handleCommentKey(event, ${post.id})">
+                <button 
+                onclick="submitComment(${post.id})"
+                style="padding:8px 16px; border-radius:20px;
+                background:#1a73e8; color:white; border:none;
+                cursor:pointer; font-size:13px;">
+                    <i class="bi bi-send"></i>
+                </button>
+            </div>
+        </div>
+    </div>`;
+      }
+
+      // ================================
+      // Rating Stars Render
+      // ================================
+      function renderRatingStars(post_id) {
+        let stars = "";
+        for (let i = 1; i <= 5; i++) {
+          stars += `
+        <i class="bi bi-star" 
+        style="color:#ffc107; cursor:pointer; font-size:18px;"
+        onmouseover="highlightStars('rating-stars-${post_id}', ${i})"
+        onmouseout="resetStars('rating-stars-${post_id}')"
+        onclick="submitRating(${post_id}, ${i})">
+        </i>`;
+        }
+        return stars;
+      }
+
+      // Star hover effects
+      function highlightStars(containerId, count) {
+        const stars = document
+          .getElementById(containerId)
+          .querySelectorAll("i");
+        stars.forEach((star, idx) => {
+          star.className = idx < count ? "bi bi-star-fill" : "bi bi-star";
+        });
+      }
+
+      function resetStars(containerId) {
+        const stars = document
+          .getElementById(containerId)
+          .querySelectorAll("i");
+        stars.forEach((star) => {
+          star.className = "bi bi-star";
+        });
+      }
+
+      // ================================
+      // Submit Rating
+      // ================================
+      function submitRating(post_id, rating) {
+        const formData = new FormData();
+        formData.append("doctor_id", post_id);
+        formData.append("rating", rating);
+
+        fetch("../php/api/rate_doctor.php", {
+          method: "POST",
+          body: formData,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status === "success") {
+              const container = document.getElementById(
+                `rating-stars-${post_id}`,
+              );
+              container.innerHTML = `<span style="color:#ffc107; font-size:14px;">
+                ${"★".repeat(rating)}${"☆".repeat(5 - rating)}
+            </span>
+            <span style="font-size:12px; color:#6c757d;">
+                ${data.avg_rating}
+            </span>`;
+            }
+          });
+      }
+
+      // ================================
+      // Like / Dislike
+      // ================================
+      function reactPost(post_id, reaction) {
+        const formData = new FormData();
+        formData.append("post_id", post_id);
+        formData.append("reaction", reaction);
+
+        fetch("../php/api/react_post.php", {
+          method: "POST",
+          body: formData,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status === "success") {
+              document.getElementById(`like-count-${post_id}`).textContent =
+                data.likes;
+              document.getElementById(`dislike-count-${post_id}`).textContent =
+                data.dislikes;
+
+              // Button animation
+              const btn = document.getElementById(`${reaction}-btn-${post_id}`);
+              gsap.from(btn, {
+                duration: 0.2,
+                scale: 0.85,
+                ease: "back.out(2)",
+              });
+            }
+          });
+      }
+
+      // ================================
+      // Toggle Comments
+      // ================================
+      function toggleComments(post_id) {
+        const section = document.getElementById(`comments-section-${post_id}`);
+
+        if (section.style.display === "none") {
+          section.style.display = "block";
+          gsap.from(section, {
+            duration: 0.3,
+            y: -10,
+            opacity: 0,
+            ease: "power2.out",
+          });
+          loadComments(post_id);
+        } else {
+          section.style.display = "none";
+        }
+      }
+
+      // ================================
+      // Load Comments (Realtime)
+      // ================================
+      function loadComments(post_id) {
+        fetch(`../php/api/get_comments.php?post_id=${post_id}`)
+          .then((res) => res.json())
+          .then((data) => {
+            const list = document.getElementById(`comments-list-${post_id}`);
+            if (data.data.length === 0) {
+              list.innerHTML = `<p style="font-size:13px; color:#6c757d;">
+                No comments yet. Be the first!</p>`;
+              return;
+            }
+
+            list.innerHTML = data.data
+              .map(
+                (c) => `
+            <div style="display:flex; gap:10px; 
+            margin-bottom:10px; align-items:flex-start;">
+                <div style="width:32px; height:32px; 
+                min-width:32px;
+                border-radius:50%; background:#1a73e8;
+                display:flex; align-items:center; 
+                justify-content:center; color:white; 
+                font-weight:700; font-size:13px;">
+                    ${c.username[0].toUpperCase()}
+                </div>
+                <div style="background:#f8f9fa; 
+                border-radius:12px; padding:8px 12px; flex:1;">
+                    <strong style="font-size:13px;">
+                        @${c.username}
+                    </strong>
+                    <p style="font-size:13px; margin-top:2px;">
+                        ${c.comment_text}
+                    </p>
+                    <small style="color:#6c757d; font-size:11px;">
+                        ${new Date(c.created_at).toLocaleString()}
+                    </small>
+                </div>
+            </div>`,
+              )
+              .join("");
+          });
+      }
+
+      // Enter key comment submit
+      function handleCommentKey(event, post_id) {
+        if (event.key === "Enter") {
+          submitComment(post_id);
+        }
+      }
+
+      // ================================
+      // Submit Comment (Realtime)
+      // ================================
+      function submitComment(post_id) {
+        const input = document.getElementById(`comment-input-${post_id}`);
+        const text = input.value.trim();
+
+        if (!text) return;
+
+        const formData = new FormData();
+        formData.append("post_id", post_id);
+        formData.append("comment_text", text);
+
+        fetch("../php/api/add_comment.php", {
+          method: "POST",
+          body: formData,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status === "success") {
+              input.value = "";
+              loadComments(post_id);
+
+              // Count update
+              const countEl = document.getElementById(
+                `comment-count-${post_id}`,
+              );
+              countEl.textContent = parseInt(countEl.textContent) + 1;
+            }
+          });
+      }
+
+      // ================================
+      // YouTube ID extract
+      // ================================
+      function getYouTubeId(url) {
+        const regExp =
+          /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(regExp);
+        return match && match[2].length === 11 ? match[2] : null;
+      }
+
+      // ================================
+      // Pagination Render
+      // ================================
+      function renderPagination(current, total) {
+        if (total <= 1) return "";
+
+        let html = `
+    <div style="display:flex; justify-content:center; 
+    gap:8px; margin-top:16px;">`;
+
+        for (let i = 1; i <= total; i++) {
+          html += `
+        <button onclick="loadPosts(${i})"
+        style="width:36px; height:36px; border-radius:50%;
+        border:none; cursor:pointer; font-size:14px;
+        background:${i === current ? "#1a73e8" : "#f8f9fa"};
+        color:${i === current ? "white" : "#212529"};
+        font-weight:${i === current ? "600" : "400"};
+        transition:all 0.3s;">
+            ${i}
+        </button>`;
+        }
+
+        html += `</div>`;
+        return html;
+      }
+    </script>
+  </body>
 </html>
