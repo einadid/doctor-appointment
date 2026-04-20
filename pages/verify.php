@@ -166,6 +166,15 @@ if (!isset($_SESSION['user_id'])) {
     </style>
 </head>
 <body>
+    <nav class="simple-nav">
+    <div class="logo">
+        <i class="bi bi-heart-pulse"></i> Doc<span>Book</span>
+    </div>
+    <div class="nav-links">
+        <a href="../index.html"><i class="bi bi-house"></i> Home</a>
+        <a href="patient-dashboard.php"><i class="bi bi-grid"></i> Dashboard</a>
+    </div>
+</nav>
 
 <div class="verify-wrapper">
     <div class="verify-card">

@@ -733,6 +733,60 @@ if ($patient_id > 0) {
                 width: 100% !important;
             }
         }
+
+        .simple-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            background: white;
+            border-bottom: 2px solid #1a73e8;
+            padding: 10px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .simple-nav .logo {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a73e8;
+        }
+
+        .simple-nav .logo span {
+            color: #198754;
+        }
+
+        .simple-nav .nav-links {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .simple-nav .nav-links a {
+            color: #333;
+            font-size: 13px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .simple-nav .nav-links a:hover {
+            color: #1a73e8;
+        }
+
+        /* Sidebar top adjust */
+        .sidebar {
+            top: 50px !important;
+            height: calc(100vh - 50px) !important;
+        }
+
+        /* Main content top adjust */
+        .main {
+            margin-top: 50px !important;
+        }
     </style>
 </head>
 
@@ -751,32 +805,18 @@ if ($patient_id > 0) {
             </div>
 
             <div class="sidebar-section">Main</div>
-            <nav class="sidebar-menu">
-                <a onclick="switchTab('overview')" class="active" id="nav-overview">
-                    <i class="bi bi-grid"></i> Overview
-                </a>
-
-                <div class="sidebar-section">Services</div>
-                <a onclick="switchTab('appointments')" id="nav-appointments">
-                    <i class="bi bi-calendar-check"></i> My Appointments
-                </a>
-                <a onclick="switchTab('doctors')" id="nav-doctors">
-                    <i class="bi bi-person-badge"></i> Find Doctors
-                </a>
-                <a onclick="switchTab('posts')" id="nav-posts">
-                    <i class="bi bi-newspaper"></i> Health Posts
-                </a>
-
-                <div class="sidebar-section">Account</div>
-                <a onclick="switchTab('profile')" id="nav-profile">
-                    <i class="bi bi-person"></i> My Profile
-                </a>
-                <a href="symptom-checker.php" id="nav-ai">
-                    <i class="bi bi-cpu"></i> AI Checker
-                </a>
-                <a href="../php/auth/logout.php" class="logout-btn">
-                    <i class="bi bi-box-arrow-right"></i> Logout
-                </a>
+            <!-- TOP NAVBAR -->
+            <nav class="simple-nav">
+                <div class="logo">
+                    <i class="bi bi-heart-pulse"></i> Doc<span>Book</span>
+                </div>
+                <div class="nav-links">
+                    <a href="../index.html"><i class="bi bi-house"></i> Home</a>
+                    <a href="patient-dashboard.php"><i class="bi bi-grid"></i> Dashboard</a>
+                    <a href="book-appointment.php"><i class="bi bi-calendar-plus"></i> Book</a>
+                    <a href="symptom-checker.php"><i class="bi bi-cpu"></i> AI Checker</a>
+                    <a href="../php/auth/logout.php" style="color:#dc3545;"><i class="bi bi-box-arrow-right"></i> Logout</a>
+                </div>
             </nav>
         </aside>
 
